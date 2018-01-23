@@ -17,7 +17,7 @@ learning_rate = 0.001
 # dev set are derived from train set and test set. 
 ratio_train = 0.9
 
-# % of images to use in the test set.
+# % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
 
