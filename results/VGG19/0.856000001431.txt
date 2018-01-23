@@ -1,0 +1,98 @@
+# CNN model options:
+# 'InceptionResNetV2'
+# 'InceptionV3'
+# 'ResNet50'
+# 'VGG16'
+# 'VGG19'
+# 'Xception'
+model_name = 'VGG19'
+
+batch_size = 16
+
+num_epochs = 15
+
+learning_rate = 0.001
+
+ratio_train = 0.7
+
+ratio_test = 0
+
+image_directory = './images'
+
+output_directory = './results'
+
+# optimizer options:
+# 'sgd'
+# 'adam'
+# 'RMSProp'
+# 'adagrad'
+# 'adadelta'
+# 'adamax'
+# 'nadam' 
+# or None which defaults to 'adam' 
+optimizer = None
+'''
+
+results: 
+
+Epoch 1/15
+loss; 0.65675638628 -  acc; 0.584000001431 - 
+val_loss; 0.512664034499 - val_acc; 0.849999999735
+
+Epoch 2/15
+loss; 0.520796943456 -  acc; 0.71875 - 
+val_loss; 0.423307947185 - val_acc; 0.833333333333
+
+Epoch 3/15
+loss; 0.433314363976 -  acc; 0.844262297525 - 
+val_loss; 0.402860253188 - val_acc; 0.833333333333
+
+Epoch 4/15
+loss; 0.462791931391 -  acc; 0.808000000954 - 
+val_loss; 0.360116074615 - val_acc; 0.85
+
+Epoch 5/15
+loss; 0.340346314013 -  acc; 0.859375 - 
+val_loss; 0.373072833551 - val_acc; 0.816666666402
+
+Epoch 6/15
+loss; 0.37951413846 -  acc; 0.824000000954 - 
+val_loss; 0.317345951597 - val_acc; 0.850000001589
+
+Epoch 7/15
+loss; 0.394563387871 -  acc; 0.832000002861 - 
+val_loss; 0.425717429717 - val_acc; 0.8
+
+Epoch 8/15
+loss; 0.339525715351 -  acc; 0.880000000954 - 
+val_loss; 0.295623398953 - val_acc; 0.866666666932
+
+Epoch 9/15
+loss; 0.407968167305 -  acc; 0.832000001431 - 
+val_loss; 0.322841233876 - val_acc; 0.833333332539
+
+Epoch 10/15
+loss; 0.345221287489 -  acc; 0.872000001431 - 
+val_loss; 0.295689042012 - val_acc; 0.883333334393
+
+Epoch 11/15
+loss; 0.389242541045 -  acc; 0.859375 - 
+val_loss; 0.359328843554 - val_acc; 0.833333333068
+
+Epoch 12/15
+loss; 0.309883580208 -  acc; 0.840000001907 - 
+val_loss; 0.277071560025 - val_acc; 0.900000002649
+
+Epoch 13/15
+loss; 0.296864193201 -  acc; 0.856000000954 - 
+val_loss; 0.304561894966 - val_acc; 0.866666668256
+
+Epoch 14/15
+loss; 0.323892257214 -  acc; 0.896000000477 - 
+val_loss; 0.270594833394 - val_acc; 0.900000001854
+
+Epoch 15/15
+loss; 0.296544086456 -  acc; 0.856000001431 - 
+val_loss; 0.290025371545 - val_acc; 0.866666668256
+
+'''

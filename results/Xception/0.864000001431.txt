@@ -1,0 +1,50 @@
+# CNN model options:
+# 'InceptionResNetV2'
+# 'InceptionV3'
+# 'ResNet50'
+# 'VGG16'
+# 'VGG19'
+# 'Xception'
+model_name = 'Xception'
+
+batch_size = 16
+
+num_epochs = 3
+
+learning_rate = 0.001
+
+ratio_train = 0.7
+
+ratio_test = 0
+
+image_directory = './images'
+
+output_directory = './results'
+
+# optimizer options:
+# 'sgd'
+# 'adam'
+# 'RMSProp'
+# 'adagrad'
+# 'adadelta'
+# 'adamax'
+# 'nadam' 
+# or None which defaults to 'adam' 
+optimizer = None
+'''
+
+results: 
+
+Epoch 1/3
+loss; 0.779641141891 -  acc; 0.520000000238 - 
+val_loss; 0.399122473929 - val_acc; 0.85
+
+Epoch 2/3
+loss; 0.409898879766 -  acc; 0.864000000477 - 
+val_loss; 0.304032217728 - val_acc; 0.89999999947
+
+Epoch 3/3
+loss; 0.349924893141 -  acc; 0.864000001431 - 
+val_loss; 0.293537900315 - val_acc; 0.900000001325
+
+'''
