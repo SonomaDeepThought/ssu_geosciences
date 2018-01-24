@@ -3,8 +3,8 @@ Sonoma State University Geosciences - Koret Scholarship, Sigmaclast Classifier
 
 
 
-# Creating an environment from an environment.yml file 
-# Use the Terminal or an Anaconda Prompt for the following steps.
+#### Creating an environment from an environment.yml file 
+#### Use the Terminal or an Anaconda Prompt for the following steps.
 
 
 Create the environment from the environment.yml file:
