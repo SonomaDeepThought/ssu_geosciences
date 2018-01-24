@@ -51,7 +51,16 @@ conda list
   ratio_train: since we do not break our images into train/dev/test sets we must do that dynamically. This is the % of
                our images that we want to use in our training set. ratio_dev is derived from ratio_train and ratio_test
   
-  ratio_test: this is the percent of our images that we will use to test upon. 
+  ratio_test: --CURRENTLY UNUSED-- this is the percent of our images that we will use to test upon. 
+  
+  image_directory: the directory that our images to binary classify our stored in. Our images must be stored in their own 
+                   subdirectories. I.e. images/with and images/without. Only 2 directorie will be considered when the program 
+                   is ran. 
+  output_directory: This directory will store the output of our model. Every time the model is ran the results will be 
+                     stored in output_directory/model_name/%.txt where % is the accuracy percent
+                     
+  optimizer: An optimizer is one of the two arguments required for compiling a Keras model. There are a few keras optimizer  
+             options that are all listed in the config.py just above the optimizer definition.
   ```
     
 
