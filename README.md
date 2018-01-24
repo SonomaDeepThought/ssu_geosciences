@@ -34,6 +34,7 @@ conda list
   ```
   emacs config.py
   ```
+  or
   ```
   vim config.py
   ```
