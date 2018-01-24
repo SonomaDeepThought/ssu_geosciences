@@ -1,7 +1,7 @@
 # ssu_geosciences
 Sonoma State University Geosciences - Koret Scholarship, Sigmaclast Classifier
 
-![sigmaclast](https://www.google.com/imgres?imgurl=http%3A%2F%2Fsearg.rhul.ac.uk%2Fsearg_uploads%2F2015%2F01%2FSER-21.jpg&imgrefurl=http%3A%2F%2Fsearg.rhul.ac.uk%2Fcurrent-research%2Fresearch-by-region%2Fseram-geological-and-tectonic-evolution%2Fseram%2F&docid=-z7rzaGeIc6RoM&tbnid=TfWaL5r2CihGBM%3A&vet=10ahUKEwjK5eenvu_YAhUM4GMKHZ2PAdoQMwhQKBEwEQ..i&w=286&h=170&bih=612&biw=1280&q=Porphyroclast&ved=0ahUKEwjK5eenvu_YAhUM4GMKHZ2PAdoQMwhQKBEwEQ&iact=mrc&uact=8)
+![sigmaclast](http://searg.rhul.ac.uk/searg_uploads/2015/01/SER-21.jpg)
 
 ### Setup
 
