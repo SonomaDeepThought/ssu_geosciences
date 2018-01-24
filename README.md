@@ -6,18 +6,18 @@ Use the Terminal or an Anaconda Prompt for the following steps.
 
 Create the environment from the environment.yml file:
 
-'''
+```
 conda env create -f environment.yml
-'''
+```
 
 Activate the new environment:
-'''
+```
 Windows: activate Keras
 macOS and Linux: source activate Keras
-'''
+```
 NOTE: Replace myenv with the name of the environment.
 
 Verify that the new environment was installed correctly:
-'''
+```
 conda list
-'''
+```
