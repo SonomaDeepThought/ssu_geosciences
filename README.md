@@ -2,9 +2,11 @@
 Sonoma State University Geosciences - Koret Scholarship, Sigmaclast Classifier
 
 
+### Setup
 
-#### Creating an environment from an environment.yml file 
-#### Use the Terminal or an Anaconda Prompt for the following steps.
+
+##### Creating an environment from an environment.yml file 
+##### Use the Terminal or an Anaconda Prompt for the following steps.
 
 
 Create the environment from the environment.yml file:
@@ -24,3 +26,51 @@ Verify that the new environment was installed correctly:
 ```
 conda list
 ```
+
+### Config
+
+  There are a few options that can be adjusted. To change settings open config.py in any text editor.
+  ```
+  emacs config.py
+  ```
+  ```
+  vim config.py
+  ```
+  
+  Options that can be edited are as follows:
+  ```
+  model_name: the model names are listed in the config.py file, the only model that is custom is the SSUGeosciences model
+  
+  batch_size: this is the number of images processed per iteration in an epoch.
+  
+  num_epochs: number of times to train
+  
+  learning_rate: the smaller the number the longer it takes to learn. Too small of a number or too large of a number 
+                 can cause our learning to be unsuccessful
+                 
+  ratio_train: since we do not break our images into train/dev/test sets we must do that dynamically. This is the % of
+               our images that we want to use in our training set. ratio_dev is derived from ratio_train and ratio_test
+  
+  ratio_test: this is the percent of our images that we will use to test upon. 
+  ```
+    
+
+### Use
+
+  Activate the Keras environment
+  ```
+  source activate Keras
+  ```
+  
+  Run the binary classifier
+  ```
+  python main.py
+  ```
+  
+  Output is produced in multiple ways:
+     1. The output is displayed to the user
+     2. The config file used is copied and it's results are appended as a comment to the bottom of the file. 
+        Additionally the file is copied to the results folder defined in the config.py file with it's name based on the
+        accuracy of the script run.
+        
+ 
