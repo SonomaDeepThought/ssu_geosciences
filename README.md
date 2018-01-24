@@ -1,6 +1,7 @@
 # ssu_geosciences
 Sonoma State University Geosciences - Koret Scholarship, Sigmaclast Classifier
 
+![sigmaclast](http://www.geol.ucsb.edu/faculty/hacker/geo102C/lectures/sigmaClast.jpg)
 
 ### Setup
 
