@@ -6,7 +6,7 @@
 # 'VGG19'
 # 'Xception'
 # 'SSUGeosciences'
-model_name = 'SSUGeosciences'
+model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
