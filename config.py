@@ -1,21 +1,22 @@
 # CNN model options:
-# 'InceptionResNetV2'
+# 'InceptionResNetV2'<-- 
 # 'InceptionV3'
 # 'ResNet50'
 # 'VGG16'
 # 'VGG19'
 # 'Xception'
-model_name = 'InceptionResNetV2'
+# 'SSUGeosciences'
+model_name = 'SSUGeosciences'
 
 batch_size = 32
 
-num_epochs = 1
+num_epochs = 5
 
 learning_rate = 0.001
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 
-ratio_train = 0.9
+ratio_train = 0.7
 
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0

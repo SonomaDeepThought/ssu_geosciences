@@ -1,6 +1,7 @@
 import keras 
 
 from keras.layers import Input, Dense, Activation, Dropout
+from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, BatchNormalization, Flatten
 from keras.models import Model
 
 
@@ -137,6 +138,12 @@ def load_base_model(model_name, input_shape=None):
                               pooling = 'avg')
 
 
+    elif model_name == 'SSUGeosciences':
+        if input_shape == None:
+            img_size = 64
+            input_shape=(img_size, img_size, 3)
+        base_model = create_own_base_model(input_shape=input_shape,
+                                           pooling = 'avg')
     else:
         print("model name not recognized.")
         return
@@ -152,6 +159,53 @@ def load_base_model(model_name, input_shape=None):
     return base_model, img_size
             
             
-            
+def create_own_base_model(input_shape, pooling='avg'):
+    '''
+    This is the ssu_geosciences CNN created specifically for this project.
+    
+    Arguments:
+    input_shape -- shape of the images of the dataset
+    
+    pooling --(string) the type of pooling to be done. Average / Max etc 
+
+
+    Returns:
+    model -- a Model() instance in Keras
+
+    -- References
+    Link to the resnet50 implementation in the same manner we would like 
+    emulate
+
+    https://github.com/keras-team/keras/blob/master/keras/applications/resnet50.py
+    
+    '''
+
+    # define the channel we use for our images
+    bn_axis = 3 # we use the third param or channel_last format
+    
+    
+    # Define the input placeholder as a tensor with shape input_shape. Think of this as your input image!
+    X_input = Input(input_shape)
+
+    # Zero-Padding: pads the border of X_input with zeros
+    X = ZeroPadding2D((3,3))(X_input)
+
+    # CONV -> BN -> RELU Block applied to X
+    X = Conv2D(32, (7,7), strides = (1,1), name = 'conv0')(X)
+    X = BatchNormalization(axis=bn_axis, name='bn0')(X)
+    X = Activation('relu')(X)
+
+    # pooling 
+    if pooling == 'max':
+        X = GlobalMaxPooling2D((2,2), name='max_pool')(X)
+    elif pooling == 'avg':
+        X = GlobalAveragePooling2D((2,2), name='avg_pool')(X)
+
+    # FLATTEN X (means convert it to a vector)
+    X = Flatten()(X)
+
+    model = Model(inputs = X_input, outputs = X, name = 'SSUGeosciencesModel')
+    
+    return model
             
         
