@@ -53,7 +53,7 @@ conda list
   ratio_train: since we do not break our images into train/dev/test sets we must do that dynamically. This is the % of
                our images that we want to use in our training set. ratio_dev is derived from ratio_train and ratio_test
   
-  ratio_test: --CURRENTLY UNUSED-- this is the percent of our images that we will use to test upon. 
+  ratio_test: --CURRENTLY UNUSED AS OUR DATASET IS TOO SMALL-- this is the percent of our images that we will use to test upon. 
   
   image_directory: the directory that our images to binary classify our stored in. Our images must be stored in their own 
                    subdirectories. I.e. images/with and images/without. Only 2 directorie will be considered when the program 
