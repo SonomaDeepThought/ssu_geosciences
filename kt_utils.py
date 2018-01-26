@@ -45,6 +45,28 @@ def load_images(folder, img_size):
         return images
 
 
+def load_subset(tenObject1, tenObject2, ratio, rangeStart1, rangeStart2, dRange1, dRange2):
+        '''
+        Args:
+            tenObject1: Tensorflow object
+            tenObject2: Tensorflow object
+            ratio: desired images in the subset
+	    rangeStart1: range of images used for set one
+	    rangeStart2: range of images used for set two
+	    dRange1: change in range for set one
+	    dRange2: change in range for set two
+
+        Returns: A dictionary containing the desired results.
+
+        '''
+        num_one = int(tenObject1.shape[0] * ratio)
+        set_one = tenObject1[rangeStart1:num_one + dRange1]
+        num_two = int(tenObject2.shape[0] * ratio)
+        set_two = tenObject2[rangeStart2:num_two + dRange2]
+        results = np.concatenate((set_one,set_two))
+        return {'results': results, 'set_one': set_one, 'set_two' :set_two, 'num_one': num_one, 'num_two': num_two}
+
+
 def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1, ratio_test = -1,
                  verbose = False):
 
@@ -64,7 +86,6 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1, r
 
         dirs = os.listdir(image_directory)
         assert(len(dirs) == 2)
-
         
         x_one = np.array(load_images(image_directory + '/' + dirs[0], img_size))
         x_two = np.array(load_images(image_directory + '/' + dirs[1], img_size))
@@ -74,43 +95,30 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1, r
         X_images = np.concatenate((x_one, x_two))
         
         # setup the training set
-        num_train_X_one = int(x_one.shape[0] * ratio_train)
-        x_train_one = x_one[0:num_train_X_one]
-        num_train_X_two = int(x_two.shape[0] * ratio_train)
-        x_train_two = x_two[0:num_train_X_two]
-        x_train = np.concatenate((x_train_one, x_train_two))
-        
-        num_train_Y_one = int(y_one.shape[0] * ratio_train)
-        y_train_one = y_one[0:num_train_Y_one]
-        num_train_Y_two = int(y_two.shape[0] * ratio_train)
-        y_train_two = y_two[0:num_train_Y_two]
-        y_train = np.concatenate((y_train_one, y_train_two))
+        x_train_all = load_subset(x_one, x_two, ratio_train, 0, 0, 0, 0)
+        y_train_all = load_subset(y_one, y_two, ratio_train, 0, 0, 0, 0)
         
         # setup the dev set
-        num_dev_x_one = int(x_one.shape[0] * ratio_dev)
-        x_dev_one = x_one[num_train_X_one:num_train_X_one + num_dev_x_one]
-        num_dev_x_two = int(x_two.shape[0] * ratio_dev)
-        x_dev_two = x_two[num_train_X_two:num_train_X_two + num_dev_x_two]
-        x_dev = np.concatenate((x_dev_one, x_dev_two))
-        
-        num_dev_y_one = int(y_one.shape[0] * ratio_dev)
-        y_dev_one = y_one[num_train_Y_one:num_train_Y_one + num_dev_y_one]
-        num_dev_y_two = int(y_two.shape[0] * ratio_dev)
-        y_dev_two = y_two[num_train_Y_two:num_train_Y_two + num_dev_y_two]
-        y_dev = np.concatenate((y_dev_one, y_dev_two))
+        x_dev_all = load_subset(x_one, x_two, ratio_dev, x_train_all['num_one'], x_train_all['num_two'],
+                                x_train_all['num_one'], x_train_all['num_two'])
+        y_dev_all = load_subset(y_one, y_two, ratio_dev, y_train_all['num_one'], y_train_all['num_two'],
+                                y_train_all['num_one'], y_train_all['num_two'])
 
         # setup the test set
-        num_test_x_one = int(x_one.shape[0] * ratio_test)
-        x_test_one = x_one[num_train_X_one + num_dev_x_one:x_one.shape[0]]
-        num_test_x_two = int(x_two.shape[0] * ratio_test)
-        x_test_two = x_two[num_train_X_two + num_dev_x_two:x_two.shape[0]]
-        x_test = np.concatenate((x_test_one, x_test_two))
-        
-        num_test_y_one = int(y_one.shape[0] * ratio_test)
-        y_test_one = y_one[num_train_Y_one + num_dev_y_one:y_one.shape[0]]
-        num_test_y_two = int(y_two.shape[0] * ratio_test)
-        y_test_two = y_two[num_train_Y_two + num_dev_y_two:y_two.shape[0]]
-        y_test = np.concatenate((y_test_one, y_test_two))
+
+        x_test_all = load_subset(x_one, x_two, ratio_test, x_train_all['num_one']+x_dev_all['num_one'],
+                                 x_train_all['num_two'] + x_dev_all['num_two'], x_one.shape[0], x_two.shape[0])
+        y_test_all = load_subset(y_one, y_two, ratio_test, y_train_all['num_one']+y_dev_all['num_one'],
+                                 y_train_all['num_two'] + y_dev_all['num_two'], y_one.shape[0], y_two.shape[0])
+
+        # retrieve results
+        x_train = x_train_all['results']
+        x_dev = x_dev_all['results']
+        y_train = y_train_all['results']
+        y_dev = y_dev_all['results']
+        x_test = x_test_all['results']
+        y_test = y_test_all['results']
+
 
         if verbose:
                 print('train/dev/test ratios : ' + str(ratio_train) + ', ' + str(ratio_dev) + ', ' + str(ratio_test))
