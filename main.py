@@ -1,10 +1,18 @@
 # surpress tensorflow warnings
 import os 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ["CUDA_VISIBLE_DEVICES"]= "0,1"
 
 import tensorflow as tf
+keras_config = tf.ConfigProto( device_count = {'GPU': 2 })
+keras_config.gpu_options.allow_growth=True
+sess = tf.Session(config=keras_config) 
+
 import numpy as np
-from keras import backend as K  
+import keras
+from keras import backend as K
+K.set_session(sess)
+
 from keras.preprocessing.image import ImageDataGenerator
 
 # import our local files
@@ -73,6 +81,7 @@ def main(loaded_params):
     output_directory = loaded_params['output_directory']
     optimizer = loaded_params['optimizer']
     image_directory = loaded_params['image_directory']
+    num_gpus = loaded_params['num_gpus']
     
     base_model, img_size = load_base_model(model_name)
 
@@ -96,7 +105,7 @@ def main(loaded_params):
     completed_model = create_final_layers(base_model,
                                           img_size,
                                           learning_rate=learning_rate,
-                                          optimizer=optimizer)
+                                          optimizer=optimizer, num_gpus=num_gpus)
 
     completed_model.summary() # print to the user the summary of our model
 

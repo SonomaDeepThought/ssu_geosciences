@@ -4,9 +4,12 @@ from keras.layers import Input, Dense, Activation, Dropout
 from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, BatchNormalization, Flatten
 from keras.models import Model
 
+from multi_gpu import *
+
+
 
 def create_final_layers(base_model, img_size, optimizer=None,
-                        learning_rate=0.001, dropout_rate=0.5):
+                        learning_rate=0.001, dropout_rate=0.5, num_gpus=1):
 
     """
     Inputs:
@@ -55,7 +58,10 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
     print("optimizer: ", optimizer)
     print("optimizer config: ", optimizer.get_config())
-        
+
+
+#    model = make_parallel(model, 2)
+    
     model.compile(optimizer=optimizer, loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model
@@ -140,7 +146,7 @@ def load_base_model(model_name, input_shape=None):
 
     elif model_name == 'SSUGeosciences':
         if input_shape == None:
-            img_size = 64
+            img_size = 299
             input_shape=(img_size, img_size, 3)
         base_model = create_own_base_model(input_shape=input_shape,
                                            pooling = 'avg')
