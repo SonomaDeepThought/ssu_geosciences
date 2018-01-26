@@ -84,4 +84,9 @@ conda list
         Additionally the file is copied to the results folder defined in the config.py file with it's name based on the
         accuracy of the script run.
         
+        
+ ### Visualize GPU Utilization
+ ```
+ watch -n 0.5 nvidia-smi
+ ```
  
