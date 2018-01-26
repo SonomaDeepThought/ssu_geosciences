@@ -10,7 +10,7 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 5
+num_epochs = 10
 
 learning_rate = 0.001
 
@@ -21,6 +21,7 @@ ratio_train = 0.7
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
+num_gpus = 2
 
 
 # since this is a binary classifier, there must be 2 folders inside the
