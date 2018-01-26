@@ -1,0 +1,130 @@
+# CNN model options:
+# 'InceptionResNetV2'<-- 
+# 'InceptionV3'
+# 'ResNet50'
+# 'VGG16'
+# 'VGG19'
+# 'Xception'
+# 'SSUGeosciences'
+model_name = 'InceptionResNetV2'
+
+batch_size = 32
+
+num_epochs = 20
+
+learning_rate = 0.001
+
+# % of images to use in the training set. The number of images used for the
+# dev set are derived from train set and test set. 
+ratio_train = 0.7
+
+# % of images to use in the test set (note that test set is different from validation/dev set).
+ratio_test = 0
+
+
+
+# since this is a binary classifier, there must be 2 folders inside the
+# image directory. Those folders must be named: with, without
+image_directory = './images'
+
+# results will be placed in the output directory. seperated by the
+# model_name provided and stored as the final accuracy % on the training set.
+output_directory = './results'
+
+# optimizer options:
+# 'sgd'
+# 'adam'
+# 'RMSProp'
+# 'adagrad'
+# 'adadelta'
+# 'adamax'
+# 'nadam' 
+# or None which defaults to 'adam'
+# The optimizers will use default parameters except learning_rate which
+# is stored above
+optimizer = None
+'''
+
+results: 
+
+Epoch 1/20
+loss; 0.410867746276 -  acc; 0.879556260661 - 
+val_loss; 0.281075859279 - val_acc; 0.876506024416
+
+Epoch 2/20
+loss; 0.255036324121 -  acc; 0.901743265037 - 
+val_loss; 0.218036321542 - val_acc; 0.898036589797
+
+Epoch 3/20
+loss; 0.233919870409 -  acc; 0.91125198136 - 
+val_loss; 0.330248175387 - val_acc; 0.912539044697
+
+Epoch 4/20
+loss; 0.204724439209 -  acc; 0.916006339522 - 
+val_loss; 0.216897711903 - val_acc; 0.940205265586
+
+Epoch 5/20
+loss; 0.261688710377 -  acc; 0.9046875 - 
+val_loss; 0.175165787035 - val_acc; 0.940316822687
+
+Epoch 6/20
+loss; 0.213729873731 -  acc; 0.921221865718 - 
+val_loss; 0.182134102446 - val_acc; 0.943663542822
+
+Epoch 7/20
+loss; 0.177786443941 -  acc; 0.9265625 - 
+val_loss; 0.187568720553 - val_acc; 0.936635430744
+
+Epoch 8/20
+loss; 0.186188612073 -  acc; 0.938906751741 - 
+val_loss; 0.225745462629 - val_acc; 0.908076750812
+
+Epoch 9/20
+loss; 0.193360039153 -  acc; 0.917591125576 - 
+val_loss; 0.297079768845 - val_acc; 0.887438643064
+
+Epoch 10/20
+loss; 0.169549667835 -  acc; 0.9296875 - 
+val_loss; 0.228870457428 - val_acc; 0.911646586345
+
+Epoch 11/20
+loss; 0.183516068387 -  acc; 0.925515055468 - 
+val_loss; 0.18132534169 - val_acc; 0.915662649991
+
+Epoch 12/20
+loss; 0.165007851347 -  acc; 0.946945338387 - 
+val_loss; 0.227017163572 - val_acc; 0.897925033361
+
+Epoch 13/20
+loss; 0.199096914381 -  acc; 0.921875 - 
+val_loss; 0.213984665695 - val_acc; 0.926260597495
+
+Epoch 14/20
+loss; 0.162102491962 -  acc; 0.949286846654 - 
+val_loss; 0.266129293888 - val_acc; 0.880187416438
+
+Epoch 15/20
+loss; 0.170078792729 -  acc; 0.935023771507 - 
+val_loss; 0.177477693602 - val_acc; 0.929384203082
+
+Epoch 16/20
+loss; 0.181479541782 -  acc; 0.926045016844 - 
+val_loss; 0.212467313308 - val_acc; 0.915439535549
+
+Epoch 17/20
+loss; 0.196313874716 -  acc; 0.925515056223 - 
+val_loss; 0.222087220591 - val_acc; 0.905176260385
+
+Epoch 18/20
+loss; 0.132565549389 -  acc; 0.9515625 - 
+val_loss; 0.165887187693 - val_acc; 0.943440428513
+
+Epoch 19/20
+loss; 0.164451682239 -  acc; 0.937299036136 - 
+val_loss; 0.185091823067 - val_acc; 0.918897813529
+
+Epoch 20/20
+loss; 0.128338185977 -  acc; 0.953125 - 
+val_loss; 0.157245767818 - val_acc; 0.940428380267
+
+'''

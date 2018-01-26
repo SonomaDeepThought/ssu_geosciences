@@ -1,0 +1,70 @@
+# CNN model options:
+# 'InceptionResNetV2'<-- 
+# 'InceptionV3'
+# 'ResNet50'
+# 'VGG16'
+# 'VGG19'
+# 'Xception'
+# 'SSUGeosciences'
+model_name = 'InceptionResNetV2'
+
+batch_size = 32
+
+num_epochs = 5
+
+learning_rate = 0.001
+
+# % of images to use in the training set. The number of images used for the
+# dev set are derived from train set and test set. 
+ratio_train = 0.7
+
+# % of images to use in the test set (note that test set is different from validation/dev set).
+ratio_test = 0
+
+
+
+# since this is a binary classifier, there must be 2 folders inside the
+# image directory. Those folders must be named: with, without
+image_directory = './images'
+
+# results will be placed in the output directory. seperated by the
+# model_name provided and stored as the final accuracy % on the training set.
+output_directory = './results'
+
+# optimizer options:
+# 'sgd'
+# 'adam'
+# 'RMSProp'
+# 'adagrad'
+# 'adadelta'
+# 'adamax'
+# 'nadam' 
+# or None which defaults to 'adam'
+# The optimizers will use default parameters except learning_rate which
+# is stored above
+optimizer = None
+'''
+
+results: 
+
+Epoch 1/5
+loss; 0.669225494571 -  acc; 0.855784469475 - 
+val_loss; 0.328954656725 - val_acc; 0.894801427269
+
+Epoch 2/5
+loss; 0.303477884189 -  acc; 0.904912836106 - 
+val_loss; 0.25629026415 - val_acc; 0.908188308392
+
+Epoch 3/5
+loss; 0.255341945589 -  acc; 0.9 - 
+val_loss; 0.206814117051 - val_acc; 0.918897813423
+
+Epoch 4/5
+loss; 0.238697634493 -  acc; 0.90174326362 - 
+val_loss; 0.193817851645 - val_acc; 0.940093707421
+
+Epoch 5/5
+loss; 0.1939418493 -  acc; 0.936608557561 - 
+val_loss; 0.19958135996 - val_acc; 0.929384203188
+
+'''

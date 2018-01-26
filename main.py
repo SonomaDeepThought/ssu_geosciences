@@ -67,6 +67,9 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                                                                      batch_size=batch_size),
                                    nb_val_samples=X_dev.shape[0])
 
+
+    # add confusion matrix prediction code.
+    # preds = model.predict(X_dev, Y_dev)
     return history
                  
 def main(loaded_params):
