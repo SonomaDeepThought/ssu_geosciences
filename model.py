@@ -4,9 +4,6 @@ from keras.layers import Input, Dense, Activation, Dropout
 from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, BatchNormalization, Flatten
 from keras.models import Model
 
-from multi_gpu import *
-
-
 from keras.utils.training_utils import multi_gpu_model
 
 

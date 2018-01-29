@@ -9,6 +9,13 @@ import shutil
 
 import config # config file we need to load our params from
 
+
+from tensorflow.python.client import device_lib
+
+def get_available_gpus():
+        local_device_protos = device_lib.list_local_devices()
+        return len([x.name for x in local_device_protos if x.device_type == 'GPU'])
+
 def display_image(img, label):
         plt.imshow(img)
         print(label)
@@ -180,5 +187,11 @@ def parse_config_file():
         loaded_params['output_directory'] = config.output_directory
         loaded_params['optimizer'] = config.optimizer
         loaded_params['image_directory'] = config.image_directory
-        loaded_params['num_gpus'] = config.num_gpus
+        gpus =  get_available_gpus()
+        if gpus > config.num_gpus:
+                loaded_params['num_gpus'] = config.num_gpus
+        else:
+                loaded_params['num_gpus'] = gpus
+                print('Number of specified gpus in config.py exceeds available gpus')
+        print("Using {", str(loaded_params['num_gpus']), "} gpus")
         return loaded_params

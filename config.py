@@ -22,7 +22,7 @@ ratio_train = 0.7
 ratio_test = 0
 
 # number of gpus to use. 
-num_gpus = 2
+num_gpus = 4
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
