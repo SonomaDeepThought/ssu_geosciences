@@ -1,19 +1,14 @@
 # surpress tensorflow warnings
 import os 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ["CUDA_VISIBLE_DEVICES"]= "0,1"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # log minimum errors to the user
 
 import tensorflow as tf
-keras_config = tf.ConfigProto( device_count = {'GPU': 2 })
-keras_config.gpu_options.allow_growth=True
-sess = tf.Session(config=keras_config) 
-
 import numpy as np
 import keras
 from keras import backend as K
-K.set_session(sess)
-
 from keras.preprocessing.image import ImageDataGenerator
+
+import time
 
 # import our local files
 from kt_utils import *
@@ -130,7 +125,10 @@ def main(loaded_params):
 
 if __name__ == "__main__":
 
+    start = time.time()
     loaded_params = parse_config_file()
     initialize_output_directory(loaded_params['output_directory'],
                                 loaded_params['model_name'])
     main(loaded_params)
+    end = time.time()
+    print("total elapsed time: ", str(end -start))

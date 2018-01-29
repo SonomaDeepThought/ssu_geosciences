@@ -7,6 +7,8 @@ from keras.models import Model
 from multi_gpu import *
 
 
+from keras.utils.training_utils import multi_gpu_model
+
 
 def create_final_layers(base_model, img_size, optimizer=None,
                         learning_rate=0.001, dropout_rate=0.5, num_gpus=1):
@@ -59,9 +61,10 @@ def create_final_layers(base_model, img_size, optimizer=None,
     print("optimizer: ", optimizer)
     print("optimizer config: ", optimizer.get_config())
 
+    # spread our work across num_gpus 
+    if num_gpus >= 2:
+        model = multi_gpu_model(model, gpus=num_gpus)
 
-#    model = make_parallel(model, 2)
-    
     model.compile(optimizer=optimizer, loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model

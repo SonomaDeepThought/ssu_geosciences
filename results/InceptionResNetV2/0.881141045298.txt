@@ -44,3 +44,16 @@ output_directory = './results'
 # The optimizers will use default parameters except learning_rate which
 # is stored above
 optimizer = None
+'''
+
+results: 
+
+Epoch 1/2
+loss; 0.643746138375 -  acc; 0.892234548053 - 
+val_loss; 0.2887436199 - val_acc; 0.894689870567
+
+Epoch 2/2
+loss; 0.303234226588 -  acc; 0.881141045298 - 
+val_loss; 0.229326423849 - val_acc; 0.908634538259
+
+'''

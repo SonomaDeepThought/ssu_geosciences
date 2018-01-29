@@ -21,7 +21,7 @@ ratio_train = 0.7
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
-num_gpus = 1
+num_gpus = 2
 
 
 # since this is a binary classifier, there must be 2 folders inside the
@@ -44,3 +44,16 @@ output_directory = './results'
 # The optimizers will use default parameters except learning_rate which
 # is stored above
 optimizer = None
+'''
+
+results: 
+
+Epoch 1/2
+loss; 0.542025226987 -  acc; 0.866877970813 - 
+val_loss; 0.230051967866 - val_acc; 0.908522980147
+
+Epoch 2/2
+loss; 0.282014198229 -  acc; 0.8921875 - 
+val_loss; 0.213698259725 - val_acc; 0.915551093102
+
+'''
