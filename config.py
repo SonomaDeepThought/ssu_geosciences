@@ -21,8 +21,8 @@ ratio_train = 0.7
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
-num_gpus = 1
-
+# number of gpus to use. 
+num_gpus = 2
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
