@@ -14,8 +14,6 @@ num_epochs = 10
 
 learning_rate = 0.001
 
-k_folds = 4
-
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 
 ratio_train = 0.7
@@ -28,7 +26,7 @@ num_gpus = 2
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
-image_directory = './images'
+image_directory = './pet_images'
 
 # results will be placed in the output directory. seperated by the
 # model_name provided and stored as the final accuracy % on the training set.
@@ -46,3 +44,9 @@ output_directory = './results'
 # The optimizers will use default parameters except learning_rate which
 # is stored above
 optimizer = None
+'''
+
+results: 
+
+Epoch 1/10
+loss; 0.226868326812 -  acc; 0.923898531534 - 

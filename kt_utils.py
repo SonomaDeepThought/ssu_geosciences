@@ -187,6 +187,7 @@ def parse_config_file():
         loaded_params['output_directory'] = config.output_directory
         loaded_params['optimizer'] = config.optimizer
         loaded_params['image_directory'] = config.image_directory
+        loaded_params['k_folds'] = config.k_folds
         gpus =  get_available_gpus()
         if gpus > config.num_gpus:
                 loaded_params['num_gpus'] = config.num_gpus

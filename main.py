@@ -8,6 +8,8 @@ import keras
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 
+from sklearn.model_selection import StratifiedKFold
+
 import time
 
 # import our local files
@@ -51,22 +53,40 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     
     train_datagen.fit(X_train)
     test_datagen.fit(X_dev)
-    
+
+    '''
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
                                                       batch_size=batch_size),
-                                   samples_per_epoch=X_train.shape[0],
+                                   samples_per_epoch=X_train.shape[0] / batch_size,
                                    epochs = num_epochs,
                                    validation_data=test_datagen.flow(X_dev,
                                                                      Y_dev,
                                                                      batch_size=batch_size),
-                                   nb_val_samples=X_dev.shape[0])
+                                   nb_val_samples=X_dev.shape[0] / batch_size)
+
+
+    '''
+
+    history =  model.fit_generator(train_datagen.flow(X_train,
+                                                      Y_train,
+                                                      batch_size=batch_size),
+                                   epochs = num_epochs)
 
 
     # add confusion matrix prediction code.
     # preds = model.predict(X_dev, Y_dev)
     return history
-                 
+
+def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs):
+
+    # no imagedatagen being used yet.
+    
+    model.fit(X_train, Y_train)
+    results = model.evaluate(X_dev, Y_dev)
+
+    return results[1] # return our accuracy
+
 def main(loaded_params):
 
 
@@ -80,6 +100,7 @@ def main(loaded_params):
     optimizer = loaded_params['optimizer']
     image_directory = loaded_params['image_directory']
     num_gpus = loaded_params['num_gpus']
+    k_folds = loaded_params['k_folds']
     
     base_model, img_size = load_base_model(model_name)
 
@@ -107,15 +128,55 @@ def main(loaded_params):
 
     completed_model.summary() # print to the user the summary of our model
 
-    history = train_and_evaluate_model(completed_model,
-                                       X_train,
-                                       Y_train,
-                                       X_dev,
-                                       Y_dev,
-                                       batch_size=batch_size,
-                                       num_epochs=num_epochs)
+    # for k-fold we must combine our data into a single entity.
+    data = np.concatenate((X_train, X_dev), axis=0)
+    labels = np.concatenate((Y_train, Y_dev), axis=0)
+    print("\nlabels[:,0]: ", str(labels[:,0]))
+    skf = StratifiedKFold(n_splits = k_folds)
+    skf.get_n_splits(data, labels)
+#    skf = StratifiedKFold(labels[:,0], n_folds=k_folds, shuffle=True)
 
+    
+    if k_folds <= 1:
+        history = train_and_evaluate_model(completed_model,
+                                           X_train,
+                                           Y_train,
+                                           X_dev,
+                                           Y_dev,
+                                           batch_size=batch_size,
+                                           num_epochs=num_epochs)
 
+    else:
+
+        scores = np.zeros(k_folds)
+        idx = 0
+        
+        for (train, test) in skf.split(data,labels):
+            #print ("Running Fold", i+1, "/", k_folds)
+            completed_model = None
+            completed_model = create_final_layers(base_model,
+                                                  img_size,
+                                                  learning_rate=learning_rate,
+                                                  optimizer=optimizer,
+                                                  num_gpus=num_gpus)
+
+            print("\ntrain: ", str(train), " test: ", str(test))
+            '''
+            history = train_and_evaluate_model(completed_model,
+                                               data[train],
+                                               labels[train],
+                                               data[test],
+                                               labels[test],
+                                               batch_size=batch_size,
+                                               num_epochs=num_epochs)
+            '''
+            scores[idx] = k_fold(completed_model, data[train], labels[train],
+                                 data[test], labels[test],
+                                 batch_size=batch_size, num_epochs=num_epochs)
+            idx += 1
+
+    print("\nscores: ", str(scores))
+    print("mean: ", str(scores.mean()))
     save_results(output_directory, model_name, history)
    
     # stop the session from randomly failing to exit gracefully
