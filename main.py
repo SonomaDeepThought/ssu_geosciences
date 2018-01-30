@@ -80,9 +80,10 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
 
 def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs):
 
-    # no imagedatagen being used yet.
+    # no imagedatagen being used in kfold yet.
     
-    model.fit(X_train, Y_train)
+    model.fit(X_train, Y_train, epochs=num_epochs,
+              batch_size=batch_size)
     results = model.evaluate(X_dev, Y_dev)
 
     return results[1] # return our accuracy
@@ -131,7 +132,6 @@ def main(loaded_params):
     # for k-fold we must combine our data into a single entity.
     data = np.concatenate((X_train, X_dev), axis=0)
     labels = np.concatenate((Y_train, Y_dev), axis=0)
-    print("\nlabels[:,0]: ", str(labels[:,0]))
     skf = StratifiedKFold(n_splits = k_folds)
     skf.get_n_splits(data, labels)
 #    skf = StratifiedKFold(labels[:,0], n_folds=k_folds, shuffle=True)
@@ -160,7 +160,6 @@ def main(loaded_params):
                                                   optimizer=optimizer,
                                                   num_gpus=num_gpus)
 
-            print("\ntrain: ", str(train), " test: ", str(test))
             '''
             history = train_and_evaluate_model(completed_model,
                                                data[train],
