@@ -10,11 +10,11 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 10
+num_epochs = 2
 
 learning_rate = 0.001
 
-k_folds = 4
+k_folds = 6
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 

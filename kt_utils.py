@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 
+from keras import backend as K
 import os
 import os.path
 
@@ -11,6 +12,26 @@ import config # config file we need to load our params from
 
 
 from tensorflow.python.client import device_lib
+
+def confusion_matrix(Y_true, Y_pred, labels=None, verbose=True):
+        '''
+        returns array, shape
+        '''
+        from sklearn.metrics import confusion_matrix
+
+        # by defaults keras uses the round function to assign classes.
+        # Thus the default threshold is 0.5
+
+        Y_pred = Y_pred[:,0] >= 0.5 
+#        Y_pred = K.round(Y_pred[:,0])
+
+        
+        if verbose is True:
+                print("Y_true: ", str(Y_true))
+                print("Y_preds: ", str(Y_pred))
+
+        return confusion_matrix(Y_true[:,0],Y_pred, labels=labels)
+        
 
 def get_available_gpus():
         local_device_protos = device_lib.list_local_devices()

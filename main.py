@@ -85,8 +85,8 @@ def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs):
     model.fit(X_train, Y_train, epochs=num_epochs,
               batch_size=batch_size)
     results = model.evaluate(X_dev, Y_dev)
-
-    return results[1] # return our accuracy
+    preds = model.predict(X_dev)
+    return preds, results[1] # return our preds, accuracy
 
 def main(loaded_params):
 
@@ -160,23 +160,17 @@ def main(loaded_params):
                                                   optimizer=optimizer,
                                                   num_gpus=num_gpus)
 
-            '''
-            history = train_and_evaluate_model(completed_model,
-                                               data[train],
-                                               labels[train],
-                                               data[test],
-                                               labels[test],
-                                               batch_size=batch_size,
-                                               num_epochs=num_epochs)
-            '''
-            scores[idx] = k_fold(completed_model, data[train], labels[train],
+            preds, scores[idx] = k_fold(completed_model, data[train], labels[train],
                                  data[test], labels[test],
                                  batch_size=batch_size, num_epochs=num_epochs)
             idx += 1
+#            conf_matrix = confusion_matrix(labels[test], preds)
+#            print(conf_matrix[0])
 
+            
     print("\nscores: ", str(scores))
     print("mean: ", str(scores.mean()))
-    save_results(output_directory, model_name, history)
+#    save_results(output_directory, model_name, history)
    
     # stop the session from randomly failing to exit gracefully
     K.clear_session() 
