@@ -88,6 +88,8 @@ conda list
  When utilizing multiple GPU's and K-Fold cross validation, it is worth noting that the time to setup multiple GPU models
  can rapidly increase the time it takes to test our data. It seems to takes ~3s per K in K-Folds to initialize our models. 
  
+ Additionally: If your dataset is small enough, there is a speed up to be had by keeping our model on one gpu.
+ 
  ### Visualize GPU Utilization
  ```
  watch -n 0.5 nvidia-smi
