@@ -91,6 +91,10 @@ conda list
  ```
  
  ### Note on K-Fold cross Validation
+ 
+ We use K-Fold cross val merely to test the validity of a model. After we choose a model, based on our cross validation
+ we should then train our model on all of our data. 
+ 
  ```
  https://stats.stackexchange.com/questions/52274/how-to-choose-a-predictive-model-after-k-fold-cross-validation
  
