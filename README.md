@@ -94,9 +94,9 @@ conda list
  ```
  https://stats.stackexchange.com/questions/52274/how-to-choose-a-predictive-model-after-k-fold-cross-validation
  
- Say we have two models, say a linear regression model and a neural network. How can we say which model is better? We can do
- K-fold cross-validation and see which one proves better at predicting the test set points. But once we have used cross-
- validation to select the better performing model, we train that model (whether it be the linear regression or the neural 
- network) on all the data. We don't use the actual model instances we trained during cross-validation for our final predictive 
- model.
+ Say we have two models, say a linear regression model and a neural network. How can we say which model is 
+ better? We can do K-fold cross-validation and see which one proves better at predicting the test set 
+ points. But once we have used cross-validation to select the better performing model, we train that
+ model (whether it be the linear regression or the neural network) on all the data. We don't use the 
+ actual model instances we trained during cross-validation for our final predictive model.
  ```
