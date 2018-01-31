@@ -13,7 +13,31 @@ import config # config file we need to load our params from
 
 from tensorflow.python.client import device_lib
 
-def confusion_matrix(Y_true, Y_pred, labels=None, verbose=True):
+
+def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=None):
+        """pretty print for confusion matrixes"""
+        columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length
+        empty_cell = " " * columnwidth
+        # Print header
+        print("    " + empty_cell, end=" ")
+        for label in labels:
+                print("%{0}s".format(columnwidth) % label, end=" ")
+        print()
+        # Print rows
+        for i, label1 in enumerate(labels):
+                print("    %{0}s".format(columnwidth) % label1, end=" ")
+                for j in range(len(labels)):
+                        cell = "%{0}.1f".format(columnwidth) % cm[i, j]
+                        if hide_zeroes:
+                                cell = cell if float(cm[i, j]) != 0 else empty_cell
+                        if hide_diagonal:
+                                cell = cell if i != j else empty_cell
+                        if hide_threshold:
+                                cell = cell if cm[i, j] > hide_threshold else empty_cell
+                        print(cell, end=" ")
+                print()
+
+def confusion_matrix(Y_true, Y_pred, labels=None, verbose=False):
         '''
         returns array, shape
         '''
@@ -22,15 +46,14 @@ def confusion_matrix(Y_true, Y_pred, labels=None, verbose=True):
         # by defaults keras uses the round function to assign classes.
         # Thus the default threshold is 0.5
 
-        Y_pred = Y_pred[:,0] >= 0.5 
-#        Y_pred = K.round(Y_pred[:,0])
-
+        Y_pred = np.rint(Y_pred[:,0])
+        Y_true = Y_true[:,0]
         
         if verbose is True:
                 print("Y_true: ", str(Y_true))
                 print("Y_preds: ", str(Y_pred))
 
-        return confusion_matrix(Y_true[:,0],Y_pred, labels=labels)
+        return confusion_matrix(Y_true,Y_pred, labels=labels)
         
 
 def get_available_gpus():

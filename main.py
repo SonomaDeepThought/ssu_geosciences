@@ -164,9 +164,10 @@ def main(loaded_params):
                                  data[test], labels[test],
                                  batch_size=batch_size, num_epochs=num_epochs)
             idx += 1
-#            conf_matrix = confusion_matrix(labels[test], preds)
-#            print(conf_matrix[0])
-
+            cm = confusion_matrix(labels[test],
+                                           preds, labels=[0,1])
+                                           
+            print_cm(cm, labels=['Negative', 'Positive'])
             
     print("\nscores: ", str(scores))
     print("mean: ", str(scores.mean()))

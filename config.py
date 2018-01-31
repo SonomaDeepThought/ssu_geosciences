@@ -14,7 +14,7 @@ num_epochs = 2
 
 learning_rate = 0.001
 
-k_folds = 6
+k_folds = 3
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 
