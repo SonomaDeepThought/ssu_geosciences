@@ -90,3 +90,7 @@ conda list
  watch -n 0.5 nvidia-smi
  ```
  
+ ### Note on K-Fold cross Validation
+ ```
+ Now, say we have two models, say a linear regression model and a neural network. How can we say which model is better? We can do K-fold cross-validation and see which one proves better at predicting the test set points. But once we have used cross-validation to select the better performing model, we train that model (whether it be the linear regression or the neural network) on all the data. We don't use the actual model instances we trained during cross-validation for our final predictive model.
+ ```
