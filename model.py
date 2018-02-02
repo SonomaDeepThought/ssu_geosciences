@@ -5,7 +5,11 @@ from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, 
 from keras.models import Model
 
 from keras.utils.training_utils import multi_gpu_model
+import time
 
+from tensorflow.python.client import device_lib
+
+from kt_utils import get_available_gpus
 
 def create_final_layers(base_model, img_size, optimizer=None,
                         learning_rate=0.001, dropout_rate=0.5, num_gpus=1):
@@ -26,7 +30,7 @@ def create_final_layers(base_model, img_size, optimizer=None,
         returns the completed model that we should then train on
     """
     input_shape=(img_size, img_size, 3)
-    input = Input(shape=input_shape, name = 'image_input')
+    input = Input(shape=input_shape)
     output_conv = base_model(input)
 
     x = Dense(4096, activation='relu',
@@ -34,7 +38,7 @@ def create_final_layers(base_model, img_size, optimizer=None,
     x = Dropout(dropout_rate, name='fc_dropout1')(x)
     x = Dense(1, activation='sigmoid', name='predictions')(x)
 
-    model = Model(input=input, output=x)
+    model = Model(inputs=input, outputs=x)
 
     if optimizer is None:
         optimizer = keras.optimizers.Adam(lr=learning_rate)
@@ -55,13 +59,17 @@ def create_final_layers(base_model, img_size, optimizer=None,
     else:
         print("optimizer name not recognized")
 
-    print("optimizer: ", optimizer)
-    print("optimizer config: ", optimizer.get_config())
+        #    print("optimizer: ", optimizer)
+        #    print("optimizer config: ", optimizer.get_config())
 
-    # spread our work across num_gpus 
-    if num_gpus >= 2:
+    # spread our work across num_gpus
+    start = time.time()
+    if num_gpus > get_available_gpus():
         model = multi_gpu_model(model, gpus=num_gpus)
 
+        print("time to spread model across multiple gpus: ", str(time.time() -
+                                                                 start))
+        
     model.compile(optimizer=optimizer, loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model

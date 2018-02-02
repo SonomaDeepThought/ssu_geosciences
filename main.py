@@ -39,6 +39,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
         e.g.  history.history['acc'][0]  could produce a float with the results        for the first epoch's accuracy
     '''
 
+    
     train_datagen = ImageDataGenerator(
         rotation_range=40, # degrees we can rotate max 180
         width_shift_range=0.2,
@@ -55,6 +56,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     test_datagen.fit(X_dev)
 
     '''
+    
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
                                                       batch_size=batch_size),
@@ -81,7 +83,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
 def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs):
 
     # no imagedatagen being used in kfold yet.
-    
+    print("X_train shape: ", str(X_train.shape))
     model.fit(X_train, Y_train, epochs=num_epochs,
               batch_size=batch_size)
     results = model.evaluate(X_dev, Y_dev)
@@ -120,24 +122,13 @@ def main(loaded_params):
 
     
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
-    
-        
-    completed_model = create_final_layers(base_model,
-                                          img_size,
-                                          learning_rate=learning_rate,
-                                          optimizer=optimizer, num_gpus=num_gpus)
-
-    completed_model.summary() # print to the user the summary of our model
-
-    # for k-fold we must combine our data into a single entity.
-    data = np.concatenate((X_train, X_dev), axis=0)
-    labels = np.concatenate((Y_train, Y_dev), axis=0)
-    skf = StratifiedKFold(n_splits = k_folds)
-    skf.get_n_splits(data, labels)
-#    skf = StratifiedKFold(labels[:,0], n_folds=k_folds, shuffle=True)
 
     
     if k_folds <= 1:
+        completed_model = create_final_layers(base_model,
+                                          img_size,
+                                          learning_rate=learning_rate,
+                                          optimizer=optimizer, num_gpus=num_gpus)
         history = train_and_evaluate_model(completed_model,
                                            X_train,
                                            Y_train,
@@ -148,21 +139,32 @@ def main(loaded_params):
 
     else:
 
+        # for k-fold we must combine our data into a single entity.
+        data = np.concatenate((X_train, X_dev), axis=0)
+        labels = np.concatenate((Y_train, Y_dev), axis=0)
+
+        
+        skf = StratifiedKFold(n_splits = k_folds, shuffle=False)
         scores = np.zeros(k_folds)
         idx = 0
         
         for (train, test) in skf.split(data,labels):
-            #print ("Running Fold", i+1, "/", k_folds)
+            print ("Running Fold", idx+1, "/", k_folds)
             completed_model = None
+
             completed_model = create_final_layers(base_model,
                                                   img_size,
                                                   learning_rate=learning_rate,
                                                   optimizer=optimizer,
                                                   num_gpus=num_gpus)
+            start = time.time()
+            preds, scores[idx] = k_fold(completed_model,
+                                       data[train], labels[train],
+                                        data[test], labels[test],
+                                        batch_size=batch_size,
+                                        num_epochs=num_epochs)
 
-            preds, scores[idx] = k_fold(completed_model, data[train], labels[train],
-                                 data[test], labels[test],
-                                 batch_size=batch_size, num_epochs=num_epochs)
+            print("time to k_fold: ", str(time.time()-start))
             idx += 1
             cm = confusion_matrix(labels[test],
                                            preds, labels=[0,1])
