@@ -1,4 +1,4 @@
 *~
 makefile
-/tools/__pycache__/
+**/__pycache__/
 /results/
