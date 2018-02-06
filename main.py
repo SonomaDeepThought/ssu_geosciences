@@ -9,6 +9,7 @@ from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 
 from sklearn.model_selection import StratifiedKFold
+from sklearn.utils import class_weight
 
 import time
 
@@ -80,12 +81,20 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     # preds = model.predict(X_dev, Y_dev)
     return history
 
-def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs):
+def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs, use_class_weights=True):
 
     # no imagedatagen being used in kfold yet.
     print("X_train shape: ", str(X_train.shape))
+
+
+    cw = dict(enumerate(class_weight.compute_class_weight('balanced',
+                                                          np.unique(Y_train),
+                                                          Y_train[:,0])))
+    if not use_class_weights:
+        cw = None
+    print('cw: ', str(cw))
     model.fit(X_train, Y_train, epochs=num_epochs,
-              batch_size=batch_size)
+              batch_size=batch_size, class_weight=cw)
     results = model.evaluate(X_dev, Y_dev)
     preds = model.predict(X_dev)
     return preds, results[1] # return our preds, accuracy
@@ -104,6 +113,7 @@ def main(loaded_params):
     image_directory = loaded_params['image_directory']
     num_gpus = loaded_params['num_gpus']
     k_folds = loaded_params['k_folds']
+    use_class_weights = loaded_params['use_class_weights']
     
     base_model, img_size = load_base_model(model_name)
 
@@ -162,7 +172,8 @@ def main(loaded_params):
                                        data[train], labels[train],
                                         data[test], labels[test],
                                         batch_size=batch_size,
-                                        num_epochs=num_epochs)
+                                        num_epochs=num_epochs,
+                                        use_class_weights=use_class_weights)
 
             print("time to k_fold: ", str(time.time()-start))
             idx += 1
@@ -171,8 +182,8 @@ def main(loaded_params):
                                            
             print_cm(cm, labels=['Negative', 'Positive'])
             
-            print("\nscores: ", str(scores))
-            print("mean: ", str(scores.mean()))
+        print("\nscores: ", str(scores))
+        print("mean: ", str(scores.mean()))
 
         #    save_results(output_directory, model_name, history)
    

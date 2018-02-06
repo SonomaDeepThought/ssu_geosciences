@@ -16,6 +16,8 @@ learning_rate = 0.001
 
 k_folds = 2
 
+use_class_weights = True
+
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 
 ratio_train = 0.7
