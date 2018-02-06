@@ -8,11 +8,13 @@
 # 'SSUGeosciences'
 model_name = 'InceptionResNetV2'
 
-batch_size = 32
+batch_size = 16
 
-num_epochs = 2
+num_epochs = 1
 
 learning_rate = 0.001
+
+k_folds = 2
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set. 
@@ -21,8 +23,8 @@ ratio_train = 0.7
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
-# number of gpus to use. 
-num_gpus = 4
+# number of gpus to use.
+num_gpus = 1
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
