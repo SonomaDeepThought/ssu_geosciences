@@ -171,9 +171,10 @@ def main(loaded_params):
                                            
             print_cm(cm, labels=['Negative', 'Positive'])
             
-    print("\nscores: ", str(scores))
-    print("mean: ", str(scores.mean()))
-#    save_results(output_directory, model_name, history)
+            print("\nscores: ", str(scores))
+            print("mean: ", str(scores.mean()))
+
+        #    save_results(output_directory, model_name, history)
    
     # stop the session from randomly failing to exit gracefully
     K.clear_session() 
