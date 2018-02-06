@@ -14,19 +14,21 @@ num_epochs = 1
 
 learning_rate = 0.001
 
-k_folds = 2
+# when k_folds > 1 the ratio_learn and ratio_test are ignored.
+# all folds have size (samples / k_folds)
+k_folds = 11
 
 use_class_weights = True
 
 # % of images to use in the training set. The number of images used for the
-# dev set are derived from train set and test set. 
+# dev set are derived from train set and test set.
 ratio_train = 0.7
 
 # % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
 
 # number of gpus to use.
-num_gpus = 1
+num_gpus = 2
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without

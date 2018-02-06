@@ -14,12 +14,16 @@ from sklearn.utils import class_weight
 import time
 
 # import our local files
-from kt_utils import *
+from tools.kt_utils import *
 from model import *
+from tools.training import *
 
+'''
 def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
-                             batch_size=32, num_epochs=1):
-    '''
+                             batch_size=32, num_epochs=1,
+                             use_class_weights=False):
+'''
+'''
     Inputs: 
         model: Keras model to train on
         X_train: the images to train on in the form (#images, height, width, channels)
@@ -38,7 +42,8 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
         of ['acc'] ['loss'] ['val_acc']  ['val_loss'] , each of which are lists
 
         e.g.  history.history['acc'][0]  could produce a float with the results        for the first epoch's accuracy
-    '''
+'''
+'''
 
     
     train_datagen = ImageDataGenerator(
@@ -56,7 +61,8 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     train_datagen.fit(X_train)
     test_datagen.fit(X_dev)
 
-    '''
+'''
+'''
     
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
@@ -70,11 +76,16 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
 
 
     '''
-
+'''
+    cw = None
+    if use_class_weights:
+        cw = get_class_weights(Y_train)
+    print('cw: ', str(cw))
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
                                                       batch_size=batch_size),
-                                   epochs = num_epochs)
+                                   epochs = num_epochs,
+                                   class_weight=cw)
 
 
     # add confusion matrix prediction code.
@@ -87,17 +98,24 @@ def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs, use_cl
     print("X_train shape: ", str(X_train.shape))
 
 
-    cw = dict(enumerate(class_weight.compute_class_weight('balanced',
-                                                          np.unique(Y_train),
-                                                          Y_train[:,0])))
-    if not use_class_weights:
-        cw = None
+    
+    cw = None
+    if use_class_weights:
+        cw = get_class_weights(Y_train)
     print('cw: ', str(cw))
     model.fit(X_train, Y_train, epochs=num_epochs,
               batch_size=batch_size, class_weight=cw)
     results = model.evaluate(X_dev, Y_dev)
     preds = model.predict(X_dev)
     return preds, results[1] # return our preds, accuracy
+
+def get_class_weights(Y_train):
+    cw = dict(enumerate(class_weight.compute_class_weight('balanced',
+                                                         np.unique(Y_train),
+                                                         Y_train[:,0])))
+    return cw
+
+'''
 
 def main(loaded_params):
 
@@ -145,7 +163,8 @@ def main(loaded_params):
                                            X_dev,
                                            Y_dev,
                                            batch_size=batch_size,
-                                           num_epochs=num_epochs)
+                                           num_epochs=num_epochs,
+                                           use_class_weights=use_class_weights)
 
     else:
 
