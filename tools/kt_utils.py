@@ -1,5 +1,7 @@
 import numpy as np
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True # allow truncated images to load 
 
 from keras import backend as K
 import os
