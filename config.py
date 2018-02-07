@@ -16,7 +16,7 @@ learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 8
+k_folds = 1
 
 use_class_weights = True
 
