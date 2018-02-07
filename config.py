@@ -8,9 +8,9 @@
 # 'SSUGeosciences'
 model_name = 'InceptionResNetV2'
 
-batch_size = 16
+batch_size = 32
 
-num_epochs = 10
+num_epochs = 15
 
 learning_rate = 0.001
 

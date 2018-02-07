@@ -1,5 +1,6 @@
 from sklearn.utils import class_weight
 import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
 
 def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                              batch_size=32, num_epochs=1,
