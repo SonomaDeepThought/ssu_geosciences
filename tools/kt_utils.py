@@ -39,6 +39,7 @@ def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=
                         print(cell, end=" ")
                 print()
 
+                
 def confusion_matrix(Y_true, Y_pred, labels=None, verbose=False):
         '''
         returns array, shape
@@ -62,11 +63,13 @@ def get_available_gpus():
         local_device_protos = device_lib.list_local_devices()
         return len([x.name for x in local_device_protos if x.device_type == 'GPU'])
 
+
 def display_image(img, label):
         plt.imshow(img)
         print(label)
         plt.show()
 
+        
 def print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test):
         print ("number of training examples = " + str(X_train.shape[0]))
         print ("number of dev examples = " + str(X_dev.shape[0]))
@@ -208,10 +211,6 @@ def save_results(directory, model_name, history):
                         str(len(history.history['loss'])) + '\n')
                 f.write('loss; ' + str(history.history['loss'][i]) + ' -  ')
                 f.write('acc; ' + str(history.history['acc'][i]) + ' - \n')
-                f.write('val_loss; ' +
-                        str(history.history['val_loss'][i]) + ' - ')
-                f.write('val_acc; ' +
-                        str(history.history['val_acc'][i]) + '\n\n')
 
         f.write('\'\'\'')
         f.close()
