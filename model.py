@@ -66,7 +66,7 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
     # spread our work across num_gpus
     start = time.time()
-    if num_gpus > get_available_gpus():
+    if num_gpus <= get_available_gpus():
         model = multi_gpu_model(model, gpus=num_gpus)
 
         print("time to spread model across multiple gpus: ", str(time.time() -

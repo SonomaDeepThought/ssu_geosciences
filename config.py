@@ -10,13 +10,13 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 2
+num_epochs = 8
 
 learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 1
+k_folds = 3
 
 use_class_weights = True
 
