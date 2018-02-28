@@ -41,6 +41,8 @@ def main(loaded_params):
     num_gpus = loaded_params['num_gpus']
     k_folds = loaded_params['k_folds']
     use_class_weights = loaded_params['use_class_weights']
+
+
     
     base_model, img_size = load_base_model(model_name)
 
@@ -61,7 +63,7 @@ def main(loaded_params):
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
 
     
-    if k_folds <= 1:
+    if k_folds == None or k_folds <= 1:
         print("building model")
         completed_model = create_final_layers(base_model,
                                           img_size,
@@ -117,12 +119,13 @@ def main(loaded_params):
         print("mean: ", str(scores.mean()))
 
         
-   
-    # stop the session from randomly failing to exit gracefully
-    K.clear_session() 
 
 
 
+
+
+
+    
 if __name__ == "__main__":
     
     import time
@@ -135,6 +138,9 @@ if __name__ == "__main__":
     main(loaded_params)
     end = time.time()
     print("total elapsed time: ", str(end -start))
+
+    # stop the session from ending after main has finished, exit gracefully
+    K.clear_session() 
 
 
 
