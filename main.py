@@ -2,7 +2,19 @@
 import os 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # log minimum errors to the user
 
+# import our passed number of gpus by user
+from config import gpu_to_use as gtu
+from config import num_gpus as ngpu
+
+if ngpu == 1:
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gtu - 1)
+    
 import tensorflow as tf
+
+from tools.kt_utils import *
+from tools.training import *
+from model import *
+
 import numpy as np
 import keras
 from keras import backend as K
@@ -11,15 +23,9 @@ from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
 
-import time
 
-# import our local files
-from tools.kt_utils import *
-from model import *
-from tools.training import *
 
 def main(loaded_params):
-
 
     model_name = loaded_params['model_name']
     num_epochs = loaded_params['num_epochs']
@@ -116,11 +122,19 @@ def main(loaded_params):
 
 
 if __name__ == "__main__":
-
+    
+    import time
     start = time.time()
     loaded_params = parse_config_file()
     initialize_output_directory(loaded_params['output_directory'],
                                 loaded_params['model_name'])
+
+
+
+
     main(loaded_params)
     end = time.time()
     print("total elapsed time: ", str(end -start))
+
+
+

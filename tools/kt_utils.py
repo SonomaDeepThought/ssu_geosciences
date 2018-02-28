@@ -3,15 +3,12 @@ from PIL import Image
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True # allow truncated images to load 
 
-from keras import backend as K
 import os
 import os.path
 
 import shutil
 
-
 import config # config file we need to load our params from
-
 
 from tensorflow.python.client import device_lib
 
@@ -239,6 +236,13 @@ def parse_config_file():
                 loaded_params['num_gpus'] = config.num_gpus
         else:
                 loaded_params['num_gpus'] = gpus
-                print('Number of specified gpus in config.py exceeds available gpus')
+                print('Number of specified gpus in config.py exceeds available gpus, using all available gpus')
+
+                
         print("Using {", str(loaded_params['num_gpus']), "} gpus")
+
+        if loaded_params["num_gpus"] == 1:
+                print('Using gpu: ', str(config.gpu_to_use))
+        loaded_params['gpu_to_use'] = config.gpu_to_use;
+        
         return loaded_params

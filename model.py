@@ -12,7 +12,8 @@ from tensorflow.python.client import device_lib
 from tools.kt_utils import get_available_gpus
 
 def create_final_layers(base_model, img_size, optimizer=None,
-                        learning_rate=0.001, dropout_rate=0.5, num_gpus=1):
+                        learning_rate=0.001, dropout_rate=0.5,
+                        num_gpus=1):
 
     """
     Inputs:
@@ -66,7 +67,8 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
     # spread our work across num_gpus
     start = time.time()
-    if num_gpus <= get_available_gpus():
+
+    if num_gpus <= get_available_gpus() and num_gpus > 1:
         model = multi_gpu_model(model, gpus=num_gpus)
 
         print("time to spread model across multiple gpus: ", str(time.time() -
@@ -74,6 +76,7 @@ def create_final_layers(base_model, img_size, optimizer=None,
         
     model.compile(optimizer=optimizer, loss='binary_crossentropy',
                   metrics=['accuracy'])
+    
     return model
 
 
