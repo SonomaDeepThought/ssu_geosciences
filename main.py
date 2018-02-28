@@ -8,6 +8,8 @@ from config import num_gpus as ngpu
 
 if ngpu == 1:
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gtu - 1)
+elif ngpu == 0:
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
     
 import tensorflow as tf
 
@@ -128,8 +130,6 @@ if __name__ == "__main__":
     loaded_params = parse_config_file()
     initialize_output_directory(loaded_params['output_directory'],
                                 loaded_params['model_name'])
-
-
 
 
     main(loaded_params)

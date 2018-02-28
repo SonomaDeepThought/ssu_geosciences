@@ -33,7 +33,7 @@ num_gpus = 1
 # if num_gpus is set to 1, use this to define the gpu to run on.
 # if gpu_to_use does not exist in the list of gpus, the model will be run on
 # the cpu. GPU numbers are [1,2,...n] for all n-gpus in the machine
-gpu_to_use = 2
+gpu_to_use = 1
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
