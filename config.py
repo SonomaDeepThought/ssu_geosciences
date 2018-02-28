@@ -10,19 +10,19 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 2
+num_epochs = 10
 
 learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 1
+k_folds = 3
 
 use_class_weights = False
 
 use_oversampling = False
 
-use_data_augmentation = False
+use_data_augmentation = True
 
 use_attention_networks = False
 
@@ -48,6 +48,7 @@ image_directory = './images'
 # results will be placed in the output directory. seperated by the
 # model_name provided and stored as the final accuracy % on the training set.
 output_directory = './results'
+
 
 # optimizer options:
 # 'sgd'

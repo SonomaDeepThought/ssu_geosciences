@@ -49,7 +49,7 @@ def main(loaded_params):
     base_model, img_size = load_base_model(model_name)
 
     # load our images
-    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test)
+    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation)
 
     # Normalize image vectors
     X_train = X_train_orig/255.

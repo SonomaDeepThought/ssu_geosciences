@@ -64,7 +64,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     cw = None
     if use_class_weights:
         cw = get_class_weights(Y_train)
-    print('cw: ', str(cw))
+    print('class weights: ', str(cw))
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
                                                       batch_size=batch_size),
@@ -87,11 +87,12 @@ def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs, use_cl
     cw = None
     if use_class_weights:
         cw = get_class_weights(Y_train)
-    print('cw: ', str(cw))
+    print('class weights: ', str(cw))
     model.fit(X_train, Y_train, epochs=num_epochs,
               batch_size=batch_size, class_weight=cw)
     results = model.evaluate(X_dev, Y_dev)
     preds = model.predict(X_dev)
+    print('k_fold accuracy: ', str(results[1]))
     return preds, results[1] # return our preds, accuracy
 
 
