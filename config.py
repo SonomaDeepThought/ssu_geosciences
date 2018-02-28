@@ -20,6 +20,12 @@ k_folds = 1
 
 use_class_weights = False
 
+use_oversampling = False
+
+use_data_augmentation = False
+
+use_attention_networks = False
+
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.
 ratio_train = 0.7

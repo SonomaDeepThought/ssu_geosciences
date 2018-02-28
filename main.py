@@ -41,7 +41,9 @@ def main(loaded_params):
     num_gpus = loaded_params['num_gpus']
     k_folds = loaded_params['k_folds']
     use_class_weights = loaded_params['use_class_weights']
-
+    use_oversampling = loaded_params['use_oversampling']
+    use_data_augmentation = loaded_params['use_data_augmentation']
+    use_attention_networks = loaded_params['use_attention_networks']
 
     
     base_model, img_size = load_base_model(model_name)
