@@ -22,6 +22,8 @@ use_class_weights = False
 
 use_oversampling = False
 
+# to modify the data augmentation settings edit tools/kt_utils.py
+# In data_augment() modify the ImageDataGenerator function params
 use_data_augmentation = True
 
 use_attention_networks = False

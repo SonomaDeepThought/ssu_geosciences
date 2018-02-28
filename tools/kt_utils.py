@@ -112,12 +112,12 @@ def data_augment(x, y, num_data_to_add, directory):
 
         datagen = ImageDataGenerator(
                     rotation_range=40, # degrees we can rotate max 180
-                    width_shift_range=0.2,
-                    height_shift_range=0.2,
-                    shear_range=0.2,
-                    zoom_range=0.2,
+                    width_shift_range=0.1, # percent width to shift
+                    height_shift_range=0.1, # percent height to shift
+                    shear_range=0.2, # angle in rotation ccw in radians
+                    zoom_range=0.3,
                     horizontal_flip=True,
-                    fill_mode='nearest')
+                    fill_mode='reflect')
 
         datagen.fit(x)
         p = x.copy()
