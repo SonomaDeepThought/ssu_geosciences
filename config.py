@@ -10,7 +10,7 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 8
+num_epochs = 2
 
 learning_rate = 0.001
 
