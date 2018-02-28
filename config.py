@@ -49,6 +49,9 @@ image_directory = './images'
 # model_name provided and stored as the final accuracy % on the training set.
 output_directory = './results'
 
+# Images created through data_augmentation will be placed in this folder
+data_augmentation_directory = './data_augmentation'
+
 
 # optimizer options:
 # 'sgd'

@@ -38,6 +38,7 @@ def main(loaded_params):
     output_directory = loaded_params['output_directory']
     optimizer = loaded_params['optimizer']
     image_directory = loaded_params['image_directory']
+    data_augmentation_directory = loaded_params['data_augmentation_directory']
     num_gpus = loaded_params['num_gpus']
     k_folds = loaded_params['k_folds']
     use_class_weights = loaded_params['use_class_weights']
@@ -49,7 +50,7 @@ def main(loaded_params):
     base_model, img_size = load_base_model(model_name)
 
     # load our images
-    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation)
+    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory)
 
     # Normalize image vectors
     X_train = X_train_orig/255.

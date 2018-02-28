@@ -163,7 +163,7 @@ def load_subset(tenObject1, tenObject2, ratio, rangeStart1, rangeStart2, dRange1
 
 
 def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
-                 ratio_test = -1, use_data_augmentation = False, verbose = False):
+                 ratio_test = -1, use_data_augmentation = False, verbose = False, data_augment_directory=None):
 
         '''
         Generate x_train, y_train, x_dev, y_dev, x_test, y_test from images in the
@@ -176,7 +176,6 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         assert(ratio_train > 0)
         assert(ratio_train < 1 and ratio_dev < 1 and ratio_test < 1)
         assert(ratio_train + ratio_dev + ratio_test <= 1)
-
         
         if ratio_dev < 0 and ratio_test < 0:
                 ratio_dev = ratio_test = (1 - ratio_train) / 2
@@ -190,29 +189,64 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         dirs = os.listdir(image_directory)
         assert(len(dirs) == 2)
 
-        num_x_one = len(next(os.walk(image_directory + '/' + dirs[0]))[2])
-        num_x_two = len(next(os.walk(image_directory + '/' + dirs[1]))[2])
+        assert(
+                (use_data_augmentation==False and data_augment_directory==None)
+                or
+                (use_data_augmentation==True and not
+                 data_augment_directory==None))
 
         delta_size_one = 0
         delta_size_two = 0
+
         if use_data_augmentation:
+                if not os.path.exists(data_augment_directory):
+                        os.makedirs(data_augment_directory)
+                        os.makedirs(data_augment_directory + '/' + dirs[0])
+                        os.makedirs(data_augment_directory + '/' + dirs[1])
+
+                num_x_one = len(next(os.walk(image_directory + '/' + dirs[0]))[2])
+                num_x_aug_one = len(next(os.walk(data_augment_directory +
+                                         '/' + dirs[0]))[2])
+                num_x_two = len(next(os.walk(image_directory + '/' + dirs[1]))[2])
+                num_x_aug_two = len(next(os.walk(data_augment_directory +
+                                         '/' + dirs[1]))[2])
+
+                
+                num_x_one += num_x_aug_one
+                num_x_two += num_x_aug_two
+        
+
                 delta_size_one = num_x_two - num_x_one
                 delta_size_two = num_x_one - num_x_two
 
 
-        x_one = np.array(load_images(image_directory + '/' + dirs[0], img_size))
-        x_two = np.array(load_images(image_directory + '/' + dirs[1], img_size))
+        x_one = np.array(load_images(image_directory + '/' + dirs[0],
+                                     img_size))
+        x_two = np.array(load_images(image_directory + '/' + dirs[1],
+                                     img_size))
+
+        if use_data_augmentation:
+                x_one_aug = np.array(load_images(data_augment_directory +
+                                                 '/' + dirs[0],
+                                                 img_size))
+                x_two_aug = np.array(load_images(data_augment_directory +
+                                                 '/' + dirs[1],
+                                                 img_size))
+                if x_one_aug.shape[0] != 0:
+                        x_one = np.concatenate((x_one, x_one_aug))
+                if x_two_aug.shape[0] != 0:
+                        x_two = np.concatenate((x_two, x_two_aug))
         
         y_one = np.ones((x_one.shape[0], 1))
         y_two = np.zeros((x_two.shape[0], 1))
 
-
+        # create and append delta_size to our array of images
         x_one, y_one = data_augment(x_one, y_one,
                                     delta_size_one,
-                                    image_directory + '/' + dirs[0])
+                                    data_augment_directory + '/' + dirs[0])
         x_two, y_two = data_augment(x_two, y_two,
                                     delta_size_two,
-                                    image_directory + '/' + dirs[1])
+                                    data_augment_directory + '/' + dirs[1])
 
         
         # X_images is the concatenation of all images
@@ -306,6 +340,7 @@ def parse_config_file():
         loaded_params['output_directory'] = config.output_directory
         loaded_params['optimizer'] = config.optimizer
         loaded_params['image_directory'] = config.image_directory
+        loaded_params['data_augmentation_directory'] = config.data_augmentation_directory
         loaded_params['k_folds'] = config.k_folds
         loaded_params['use_class_weights'] = config.use_class_weights
         loaded_params['use_oversampling'] = config.use_oversampling
