@@ -93,7 +93,7 @@ def main(loaded_params):
         skf = StratifiedKFold(n_splits = k_folds, shuffle=False)
         scores = np.zeros(k_folds)
         idx = 0
-        
+        cm_strings = []
         for (train, test) in skf.split(data,labels):
             print ("Running Fold", idx+1, "/", k_folds)
             completed_model = None
@@ -116,11 +116,11 @@ def main(loaded_params):
             cm = confusion_matrix(labels[test],
                                            preds, labels=[0,1])
                                            
-            print_cm(cm, labels=['Negative', 'Positive'])
+            cm_strings.append(print_cm(cm, labels=['Negative', 'Positive']))
             
         print("\nscores: ", str(scores))
         print("mean: ", str(scores.mean()))
-
+        save_kfold_accuracy(output_directory, model_name, scores, cm_strings)
         
 
 

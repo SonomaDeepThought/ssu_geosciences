@@ -10,38 +10,48 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 10
+num_epochs = 6
 
 learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 3
+k_folds = 6
 
+
+# number of gpus to use.
+num_gpus = 2
+
+# if num_gpus is set to 1, use this to define the gpu to run on.
+# if gpu_to_use does not exist in the list of gpus, the model will be run on
+# the cpu. GPU numbers are [1,2,...n] for all n-gpus in the machine
+gpu_to_use = 2
+
+
+# class weights give weighting based on representation of the dataset.
+# e.g. if you have 2 sets of data {x1,x2} and x1 has 2x the data of x2
+# x2 will be given a weight of 2 while x1 maintains a weight of 1
 use_class_weights = False
 
+
+# -NOT YET IMPLEMENTED-
 use_oversampling = False
+
 
 # to modify the data augmentation settings edit tools/kt_utils.py
 # In data_augment() modify the ImageDataGenerator function params
 use_data_augmentation = True
 
+
+# -NOT YET IMPLEMENTED-
 use_attention_networks = False
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.
 ratio_train = 0.7
 
-# % of images to use in the test set (note that test set is different from validation/dev set).
+# -NOT YET IN USE- % of images to use in the test set (note that test set is different from validation/dev set).
 ratio_test = 0
-
-# number of gpus to use.
-num_gpus = 1
-
-# if num_gpus is set to 1, use this to define the gpu to run on.
-# if gpu_to_use does not exist in the list of gpus, the model will be run on
-# the cpu. GPU numbers are [1,2,...n] for all n-gpus in the machine
-gpu_to_use = 2
 
 # since this is a binary classifier, there must be 2 folders inside the
 # image directory. Those folders must be named: with, without
@@ -53,7 +63,6 @@ output_directory = './results'
 
 # Images created through data_augmentation will be placed in this folder
 data_augmentation_directory = './data_augmentation'
-
 
 # optimizer options:
 # 'sgd'

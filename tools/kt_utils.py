@@ -15,8 +15,16 @@ import config # config file we need to load our params from
 from tensorflow.python.client import device_lib
 
 
-def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=None):
+def print_cm(cm, labels, hide_zeroes=False,
+             hide_diagonal=False, hide_threshold=None, output_file=None):
         """pretty print for confusion matrixes"""
+
+        from io import StringIO
+        import sys
+
+        old_stdout = sys.stdout
+        sys.stdout = string = StringIO()
+        
         columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length
         empty_cell = " " * columnwidth
         # Print header
@@ -37,6 +45,10 @@ def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False, hide_threshold=
                                 cell = cell if cm[i, j] > hide_threshold else empty_cell
                         print(cell, end=" ")
                 print()
+                
+        sys.stdout = old_stdout
+        print(string.getvalue())
+        return string.getvalue()
 
                 
 def confusion_matrix(Y_true, Y_pred, labels=None, verbose=False):
@@ -59,6 +71,11 @@ def confusion_matrix(Y_true, Y_pred, labels=None, verbose=False):
         
 
 def get_available_gpus():
+        '''
+        Returns number of gpus on the current machine
+        *Note : If this is called before setting tensorflow GPU, it will 
+        force tensorflow onto the first gpu in the list
+        '''
         local_device_protos = device_lib.list_local_devices()
         return len([x.name for x in local_device_protos if x.device_type == 'GPU'])
 
@@ -100,6 +117,8 @@ def load_images(folder, img_size):
         return images
 
 
+
+
 def data_augment(x, y, num_data_to_add, directory):
         '''
         Generate and append num_data_to_add.
@@ -138,7 +157,8 @@ def data_augment(x, y, num_data_to_add, directory):
         return p,q
 
 
-def load_subset(tenObject1, tenObject2, ratio, rangeStart1, rangeStart2, dRange1, dRange2):
+def load_subset(tenObject1, tenObject2, ratio, rangeStart1,
+                rangeStart2, dRange1, dRange2):
         '''
         Args:
             tenObject1: Tensorflow object
@@ -159,11 +179,13 @@ def load_subset(tenObject1, tenObject2, ratio, rangeStart1, rangeStart2, dRange1
         num_two = int(tenObject2.shape[0] * ratio)
         set_two = tenObject2[rangeStart2:num_two + dRange2]
         results = np.concatenate((set_one,set_two))
-        return {'results': results, 'set_one': set_one, 'set_two' :set_two, 'num_one': num_one, 'num_two': num_two}
+        return {'results': results, 'set_one': set_one, 'set_two' :set_two,
+                'num_one': num_one, 'num_two': num_two}
 
 
 def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
-                 ratio_test = -1, use_data_augmentation = False, verbose = False, data_augment_directory=None):
+                 ratio_test = -1, use_data_augmentation = False,
+                 verbose = False, data_augment_directory=None):
 
         '''
         Generate x_train, y_train, x_dev, y_dev, x_test, y_test from images in the
@@ -204,10 +226,12 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                         os.makedirs(data_augment_directory + '/' + dirs[0])
                         os.makedirs(data_augment_directory + '/' + dirs[1])
 
-                num_x_one = len(next(os.walk(image_directory + '/' + dirs[0]))[2])
+                num_x_one = len(next(os.walk(image_directory + '/'
+                                             + dirs[0]))[2])
                 num_x_aug_one = len(next(os.walk(data_augment_directory +
                                          '/' + dirs[0]))[2])
-                num_x_two = len(next(os.walk(image_directory + '/' + dirs[1]))[2])
+                num_x_two = len(next(os.walk(image_directory + '/' +
+                                             dirs[1]))[2])
                 num_x_aug_two = len(next(os.walk(data_augment_directory +
                                          '/' + dirs[1]))[2])
 
@@ -259,17 +283,24 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         y_train_all = load_subset(y_one, y_two, ratio_train, 0, 0, 0, 0)
         
         # setup the dev set
-        x_dev_all = load_subset(x_one, x_two, ratio_dev, x_train_all['num_one'], x_train_all['num_two'],
+        x_dev_all = load_subset(x_one, x_two, ratio_dev,
+                                x_train_all['num_one'], x_train_all['num_two'],
                                 x_train_all['num_one'], x_train_all['num_two'])
-        y_dev_all = load_subset(y_one, y_two, ratio_dev, y_train_all['num_one'], y_train_all['num_two'],
+
+        y_dev_all = load_subset(y_one, y_two, ratio_dev,
+                                y_train_all['num_one'], y_train_all['num_two'],
                                 y_train_all['num_one'], y_train_all['num_two'])
 
         # setup the test set
+        x_test_all = load_subset(x_one, x_two, ratio_test,
+                                 x_train_all['num_one']+x_dev_all['num_one'],
+                                 x_train_all['num_two'] + x_dev_all['num_two'],
+                                 x_one.shape[0], x_two.shape[0])
 
-        x_test_all = load_subset(x_one, x_two, ratio_test, x_train_all['num_one']+x_dev_all['num_one'],
-                                 x_train_all['num_two'] + x_dev_all['num_two'], x_one.shape[0], x_two.shape[0])
-        y_test_all = load_subset(y_one, y_two, ratio_test, y_train_all['num_one']+y_dev_all['num_one'],
-                                 y_train_all['num_two'] + y_dev_all['num_two'], y_one.shape[0], y_two.shape[0])
+        y_test_all = load_subset(y_one, y_two, ratio_test,
+                                 y_train_all['num_one']+y_dev_all['num_one'],
+                                 y_train_all['num_two'] + y_dev_all['num_two'],
+                                 y_one.shape[0], y_two.shape[0])
 
         # retrieve results
         x_train = x_train_all['results']
@@ -281,7 +312,9 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
 
 
         if verbose:
-                print('train/dev/test ratios : ' + str(ratio_train) + ', ' + str(ratio_dev) + ', ' + str(ratio_test))
+                print('train/dev/test ratios : ' +
+                      str(ratio_train) + ', ' + str(ratio_dev) +
+                      ', ' + str(ratio_test))
                 print('x_images shape: ' + str(X_images.shape))
                 print('y_images shape: ' + str(Y_images.shape))
                 print('x_train shape: ' + str(x_train.shape))
@@ -292,14 +325,36 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                 print('y_test shape: ' + str(y_test.shape))
 
         # check to ensure our sizes match
-        assert(X_images.shape[0] == (x_train.shape[0] + x_dev.shape[0] + x_test.shape[0]))
-        assert(Y_images.shape[0] == (y_train.shape[0] + y_dev.shape[0] + y_test.shape[0]))
+        assert(X_images.shape[0] == (x_train.shape[0] +
+                                     x_dev.shape[0] +
+                                     x_test.shape[0]))
+
+        assert(Y_images.shape[0] == (y_train.shape[0] +
+                                     y_dev.shape[0] +
+                                     y_test.shape[0]))
 
         return x_train, y_train, x_dev, y_dev, x_test, y_test
 
 
 
 
+def save_kfold_accuracy(directory, model_name, scores, cm_string):
+        from shutil import copyfile
+        filename = str('kfold_' + str(scores.mean()))
+        copyfile('./config.py', directory + '/' + model_name + '/' +
+                 filename + ".txt")
+        f = open(directory + '/' + model_name + '/' +  filename + '.txt', 'a+')
+        f.write('\'\'\'')
+        f.write("\n\nresults: \n\n")
+        for i in range(0, len(cm_string)):
+                f.write("\nkfold " + str(i+1) + '/' + str(len(cm_string)))
+                f.write("\n" + cm_string[i])
+        f.write("\nscores: " + str(scores))
+        f.write("\nmean: " + str(scores.mean()))
+        name = f.name
+        f.write('\n\'\'\'')
+        f.close()
+        return name
 
 
 def save_results(directory, model_name, history):
@@ -321,6 +376,7 @@ def save_results(directory, model_name, history):
                 f.write('acc; ' + str(history.history['acc'][i]) + ' - \n')
 
         f.write('\'\'\'')
+
         f.close()
 
 def initialize_output_directory(directory, model_name):
