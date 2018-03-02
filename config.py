@@ -34,7 +34,10 @@ gpu_to_use = 2
 use_class_weights = False
 
 
-# -NOT YET IMPLEMENTED-
+# - WARNING - this boolean clobbers use_data_augmentation
+#
+# Take the minority class and duplicate its images until it is within a small margin
+# of the majority class.
 use_oversampling = True
 
 

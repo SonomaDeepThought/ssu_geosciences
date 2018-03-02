@@ -129,6 +129,8 @@ def oversample(x, y, num_data_to_add):
         if num_data_to_add <= 0 or num_data_to_add < batch_size:
                 return x,y
 
+
+        print("Oversampling images")
         datagen = ImageDataGenerator() # use no parameters to simply duplicate our images
         datagen.fit(x)
         p = x.copy()
@@ -141,7 +143,7 @@ def oversample(x, y, num_data_to_add):
                 if num_added >= num_data_to_add:
                         break
                         
-
+        print("Num images added: ", str(num_added))
 
         return p,q
 
@@ -158,6 +160,8 @@ def data_augment(x, y, num_data_to_add, directory):
         if num_data_to_add <= 0 or num_data_to_add < batch_size:
                 return x, y
 
+
+        print("Creating Augmented Images")
         datagen = ImageDataGenerator(
                     rotation_range=40, # degrees we can rotate max 180
                     width_shift_range=0.1, # percent width to shift
@@ -240,45 +244,24 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         dirs = os.listdir(image_directory)
         assert(len(dirs) == 2)
 
-        assert(
-                (use_data_augmentation==False and data_augment_directory==None)
-                or
-                (use_data_augmentation==True and not
-                 data_augment_directory==None))
-
+        if use_oversampling:
+                use_data_augmetation = False
+        
         delta_size_one = 0
         delta_size_two = 0
 
         num_x_one = len(next(os.walk(image_directory + '/'
                                      + dirs[0]))[2])
         num_x_two = len(next(os.walk(image_directory + '/' +
-                                     dirs[1]))[2])
-
-        x_one = np.array(load_images(image_directory + '/' + dirs[0],
-                                     img_size))
-        x_two = np.array(load_images(image_directory + '/' + dirs[1],
-                                     img_size))
-        y_one = np.ones((x_one.shape[0], 1))
-        y_two = np.zeros((x_two.shape[0], 1))
-
-        
-        if use_oversampling:
-                delta_size_one = num_x_two - num_x_one
-                delta_size_Two = num_x_one - num_x_two
-
-                # duplicate the larger delta into our image array
-                x_one, y_one = oversample(x_one, y_one, delta_size_one)
-                x_two, y_two = oversample(x_two, y_two, delta_size_two)
-
-                print("shape x_one , y_one: ", str(x_one.shape), str(y_one.shape))
-                print("shape x_two , y_two: ", str(x_two.shape), str(y_two.shape))
+                                     dirs[1]))[2])                
                 
-                
-        elif use_data_augmentation:
+        if use_data_augmentation and not use_oversampling:
                 if not os.path.exists(data_augment_directory):
                         os.makedirs(data_augment_directory)
-                        os.makedirs(data_augment_directory + '/' + dirs[0])
-                        os.makedirs(data_augment_directory + '/' + dirs[1])
+                        if not os.path.exists(data_augment_directory + '/' + dirs[0]):
+                                os.makedirs(data_augment_directory + '/' + dirs[0])
+                        if not os.path.exists(data_augment_directory + '/' + dirs[1]):
+                                os.makedirs(data_augment_directory + '/' + dirs[1])
 
                 
                 num_x_aug_one = len(next(os.walk(data_augment_directory +
@@ -296,7 +279,29 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
 
 
 
-        if use_data_augmentation:
+                
+        x_one = np.array(load_images(image_directory + '/' + dirs[0],
+                                     img_size))
+        x_two = np.array(load_images(image_directory + '/' + dirs[1],
+                                     img_size))
+
+
+                        
+                        
+        y_one = np.ones((x_one.shape[0], 1))
+        y_two = np.zeros((x_two.shape[0], 1))
+
+        if use_oversampling and not use_data_augmentation:
+                delta_size_one = num_x_two - num_x_one
+                delta_size_Two = num_x_one - num_x_two
+
+                # duplicate the larger delta into our image array
+                x_one, y_one = oversample(x_one, y_one, delta_size_one)
+                x_two, y_two = oversample(x_two, y_two, delta_size_two)
+
+
+        if use_data_augmentation and not use_oversampling:
+                print("Loading Augmented images...")
                 x_one_aug = np.array(load_images(data_augment_directory +
                                                  '/' + dirs[0],
                                                  img_size))
@@ -304,17 +309,20 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                                                  '/' + dirs[1],
                                                  img_size))
                 if x_one_aug.shape[0] != 0:
+                        print("Loaded ", str(x_one_aug.shape[0]), " augmented images")
                         x_one = np.concatenate((x_one, x_one_aug))
                 if x_two_aug.shape[0] != 0:
+                        print("Loaded ", str(x_two_aug.shape[0]), " augmented images")
                         x_two = np.concatenate((x_two, x_two_aug))
-        
-        # create and append delta_size to our array of images
-        x_one, y_one = data_augment(x_one, y_one,
-                                    delta_size_one,
-                                    data_augment_directory + '/' + dirs[0])
-        x_two, y_two = data_augment(x_two, y_two,
-                                    delta_size_two,
-                                    data_augment_directory + '/' + dirs[1])
+
+                        
+                        # create and append delta_size to our array of images
+                        x_one, y_one = data_augment(x_one, y_one,
+                                                    delta_size_one,
+                                                    data_augment_directory + '/' + dirs[0])
+                        x_two, y_two = data_augment(x_two, y_two,
+                                                    delta_size_two,
+                                                    data_augment_directory + '/' + dirs[1])
 
         
         # X_images is the concatenation of all images
