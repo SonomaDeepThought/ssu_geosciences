@@ -1,0 +1,91 @@
+# CNN model options:
+# 'InceptionResNetV2'<-- 
+# 'InceptionV3'
+# 'ResNet50'
+# 'VGG16'
+# 'VGG19'
+# 'Xception'
+# 'SSUGeosciences'
+model_name = 'InceptionResNetV2'
+
+batch_size = 32
+
+num_epochs = 10
+
+learning_rate = 0.001
+
+# % of images to use in the training set. The number of images used for the
+# dev set are derived from train set and test set. 
+ratio_train = 0.7
+
+# % of images to use in the test set (note that test set is different from validation/dev set).
+ratio_test = 0
+
+num_gpus = 2
+
+
+# since this is a binary classifier, there must be 2 folders inside the
+# image directory. Those folders must be named: with, without
+image_directory = './images'
+
+# results will be placed in the output directory. seperated by the
+# model_name provided and stored as the final accuracy % on the training set.
+output_directory = './results'
+
+# optimizer options:
+# 'sgd'
+# 'adam'
+# 'RMSProp'
+# 'adagrad'
+# 'adadelta'
+# 'adamax'
+# 'nadam' 
+# or None which defaults to 'adam'
+# The optimizers will use default parameters except learning_rate which
+# is stored above
+optimizer = None
+'''
+
+results: 
+
+Epoch 1/10
+loss; 0.787049416695 -  acc; 0.825673534451 - 
+val_loss; 0.287230273354 - val_acc; 0.95058009817
+
+Epoch 2/10
+loss; 0.418824027439 -  acc; 0.858954040921 - 
+val_loss; 0.423891401522 - val_acc; 0.89379741171
+
+Epoch 3/10
+loss; 0.271378511294 -  acc; 0.903328049674 - 
+val_loss; 0.249622398598 - val_acc; 0.891008477932
+
+Epoch 4/10
+loss; 0.231653817388 -  acc; 0.912836766375 - 
+val_loss; 0.205274505277 - val_acc; 0.932954037977
+
+Epoch 5/10
+loss; 0.199686924554 -  acc; 0.923930268375 - 
+val_loss; 0.234969601381 - val_acc; 0.90160642557
+
+Epoch 6/10
+loss; 0.207698052073 -  acc; 0.923930268375 - 
+val_loss; 0.211636010782 - val_acc; 0.912204372596
+
+Epoch 7/10
+loss; 0.18141507969 -  acc; 0.931854200061 - 
+val_loss; 0.220104324344 - val_acc; 0.926149040102
+
+Epoch 8/10
+loss; 0.159122213535 -  acc; 0.9390625 - 
+val_loss; 0.194463849231 - val_acc; 0.929607317284
+
+Epoch 9/10
+loss; 0.129722772606 -  acc; 0.95087163233 - 
+val_loss; 0.373631261711 - val_acc; 0.816599732821
+
+Epoch 10/10
+loss; 0.217312256904 -  acc; 0.90808240963 - 
+val_loss; 0.226037403392 - val_acc; 0.926260597788
+
+'''

@@ -2,3 +2,4 @@
    60  python main.py 
    61  cd results/
    63  cd InceptionResNetV2/
+       watch -n 0.5 nvidia-smi

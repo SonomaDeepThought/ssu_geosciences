@@ -11,14 +11,15 @@ sess = tf.Session(config=keras_config)
 import numpy as np
 import keras
 from keras import backend as K
+from keras.layers import Average
 K.set_session(sess)
 
 from keras.preprocessing.image import ImageDataGenerator
 
 # import our local files
-from kt_utils import *
+from kt_utils2 import *
 from model import *
-
+from keras.models import Model, Input
 def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                              batch_size=32, num_epochs=1):
     '''
@@ -71,8 +72,18 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     # add confusion matrix prediction code.
     # preds = model.predict(X_dev, Y_dev)
     return history
+
+
+def ensemble(models, model_input):
+    outputs = [model for model in models]
+    print(outputs)
+    y = sum((outputs))/3
+ 
+    model = Model(model_input, y, name='ensemble')
+
+    return model
                  
-def main(loaded_params):
+def main(loaded_params, input_shape=None):
 
 
     model_name = loaded_params['model_name']
@@ -86,7 +97,7 @@ def main(loaded_params):
     image_directory = loaded_params['image_directory']
     num_gpus = loaded_params['num_gpus']
     
-    base_model, img_size = load_base_model(model_name)
+    base_model, img_size = load_base_model(model_name, input_shape=input_shape)
 
     # load our images
     X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test)
@@ -122,17 +133,39 @@ def main(loaded_params):
 
 
     save_results(output_directory, model_name, history)
-    get_third_layer = K.function([completed_model.layers[0].input],[model.layers[3].output])
-    layer_output = get_3rd_layer_output([x])[0]
-    print(layer_output) 
+    value = completed_model.outputs[0]
+ 
     # stop the session from randomly failing to exit gracefully
     K.clear_session() 
+    return value
 
-
+def evaluate_error(model):
+    pred = model.predict(x_test, batch_size = 32)
+    pred = np.argmax(pred, axis=1)
+    pred = np.expand_dims(pred, axis=1) # make same shape as y_test
+    error = np.sum(np.not_equal(pred, y_test)) / y_test.shape[0]  
+  
+    return error
 
 if __name__ == "__main__":
 
-    loaded_params = parse_config_file()
-    initialize_output_directory(loaded_params['output_directory'],
-                                loaded_params['model_name'])
-    main(loaded_params)
+    loaded_params1 = parse_config_file1()
+    loaded_params2 = parse_config_file2()
+    loaded_params3 = parse_config_file3()
+    initialize_output_directory(loaded_params1['output_directory'],
+                                loaded_params1['model_name'])
+    initialize_output_directory(loaded_params2['output_directory'],
+                                loaded_params2['model_name'])
+    initialize_output_directory(loaded_params3['output_directory'],
+                                loaded_params3['model_name'])
+
+    input_shape = (224,224,3)
+    model_input = Input(shape=input_shape)
+    #TODO The issue is that each model is being run in an independant session, I need to pass in the session by "with tf.Session() as sess"    
+    net1 = main(loaded_params1, input_shape=input_shape)
+    net2 = main(loaded_params2, input_shape=input_shape)
+    net3 = main(loaded_params3, input_shape=input_shape)
+    # TODO whats the model input
+    ensembel_model = ensemble([net1,net2,net3],model_input)
+
+    print(str(evaluate_error(ensemble_model)));
