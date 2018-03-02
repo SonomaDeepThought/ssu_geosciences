@@ -84,9 +84,28 @@ conda list
         Additionally the file is copied to the results folder defined in the config.py file with it's name based on the
         accuracy of the script run.
         
-        
+ ### GPU Time Issues
+ When utilizing multiple GPU's and K-Fold cross validation, it is worth noting that the time to setup multiple GPU models
+ can rapidly increase the time it takes to test our data. It seems to takes ~3s per K in K-Folds to initialize our models. 
+ 
+ Additionally: If your dataset is small enough, there is a speed up to be had by keeping our model on one gpu.
+ 
  ### Visualize GPU Utilization
  ```
  watch -n 0.5 nvidia-smi
  ```
  
+ ### Note on K-Fold cross Validation
+ 
+ We use K-Fold cross val merely to test the validity of a model. After we choose a model, based on our cross validation
+ we should then train our model on all of our data. 
+ 
+ ```
+ https://stats.stackexchange.com/questions/52274/how-to-choose-a-predictive-model-after-k-fold-cross-validation
+ 
+ Say we have two models, say a linear regression model and a neural network. How can we say which model is 
+ better? We can do K-fold cross-validation and see which one proves better at predicting the test set 
+ points. But once we have used cross-validation to select the better performing model, we train that
+ model (whether it be the linear regression or the neural network) on all the data. We don't use the 
+ actual model instances we trained during cross-validation for our final predictive model.
+ ```
