@@ -20,7 +20,7 @@ k_folds = 6
 
 
 # number of gpus to use.
-num_gpus = 2
+num_gpus = 1
 
 # if num_gpus is set to 1, use this to define the gpu to run on.
 # if gpu_to_use does not exist in the list of gpus, the model will be run on
@@ -35,7 +35,7 @@ use_class_weights = False
 
 
 # -NOT YET IMPLEMENTED-
-use_oversampling = False
+use_oversampling = True
 
 
 # to modify the data augmentation settings edit tools/kt_utils.py
