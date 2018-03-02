@@ -1,2 +1,4 @@
 *~
 makefile
+./results/*
+./__pycache__/*
