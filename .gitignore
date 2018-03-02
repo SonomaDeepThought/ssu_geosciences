@@ -1,4 +1,5 @@
 *~
 makefile
-**/__pycache__/
+/__pycache__/
 /results/
+/pet_images/
