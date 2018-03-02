@@ -10,13 +10,13 @@ model_name = 'InceptionResNetV2'
 
 batch_size = 32
 
-num_epochs = 6
+num_epochs = 1
 
 learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 6
+k_folds = 2
 
 
 # number of gpus to use.
@@ -38,12 +38,12 @@ use_class_weights = False
 #
 # Take the minority class and duplicate its images until it is within a small margin
 # of the majority class.
-use_oversampling = True
+use_oversampling = False
 
 
 # to modify the data augmentation settings edit tools/kt_utils.py
 # In data_augment() modify the ImageDataGenerator function params
-use_data_augmentation = True
+use_data_augmentation = False
 
 
 # -NOT YET IMPLEMENTED-
