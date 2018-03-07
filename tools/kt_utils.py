@@ -247,7 +247,7 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
 
         # oversampling takes precedence over data augmentaton
         if use_oversampling:
-                use_data_augmetation = False
+                use_data_augmentation = False
         
         delta_size_one = 0
         delta_size_two = 0
