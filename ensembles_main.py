@@ -75,10 +75,9 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
 
 
 def ensemble(models, model_input):
-    outputs = [model for model in models]
-    print(outputs)
-    y = sum((outputs))/3
- 
+    outputs = [model.outputs[0] for model in models]
+    y = Average()(outputs)
+
     model = Model(model_input, y, name='ensemble')
 
     return model
@@ -133,11 +132,10 @@ def main(loaded_params, input_shape=None):
 
 
     save_results(output_directory, model_name, history)
-    value = completed_model.outputs[0]
  
     # stop the session from randomly failing to exit gracefully
-    K.clear_session() 
-    return value
+    # K.clear_session() 
+    return completed_model
 
 def evaluate_error(model):
     pred = model.predict(x_test, batch_size = 32)
@@ -162,10 +160,12 @@ if __name__ == "__main__":
     input_shape = (224,224,3)
     model_input = Input(shape=input_shape)
     #TODO The issue is that each model is being run in an independant session, I need to pass in the session by "with tf.Session() as sess"    
-    net1 = main(loaded_params1, input_shape=input_shape)
-    net2 = main(loaded_params2, input_shape=input_shape)
-    net3 = main(loaded_params3, input_shape=input_shape)
+    with tf.Session() as sess:
+        net1 = main(loaded_params1, input_shape=input_shape)
+        net2 = main(loaded_params2, input_shape=input_shape)
+        net3 = main(loaded_params3, input_shape=input_shape)
     # TODO whats the model input
-    ensembel_model = ensemble([net1,net2,net3],model_input)
+        ensembel_model = ensemble([net1,net2,net3],model_input)
 
     print(str(evaluate_error(ensemble_model)));
+    K.clear_session()
