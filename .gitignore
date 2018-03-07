@@ -3,3 +3,4 @@ makefile
 /__pycache__/
 /results/
 /pet_images/
+/data_augmentation/
