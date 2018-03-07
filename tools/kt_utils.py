@@ -223,7 +223,9 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         if use_data_augmentation:
                 if not os.path.exists(data_augment_directory):
                         os.makedirs(data_augment_directory)
+                if not os.path.exists(data_augment_directory + '/' + dirs[0]):
                         os.makedirs(data_augment_directory + '/' + dirs[0])
+                if not os.path.exists(data_augment_directory + '/' + dirs[1]):
                         os.makedirs(data_augment_directory + '/' + dirs[1])
 
                 num_x_one = len(next(os.walk(image_directory + '/'

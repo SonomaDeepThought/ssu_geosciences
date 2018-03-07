@@ -76,3 +76,4 @@ data_augmentation_directory = './data_augmentation'
 # The optimizers will use default parameters except learning_rate which
 # is stored above
 optimizer = None
+

@@ -1,7 +1,7 @@
 import keras 
 
 from keras.layers import Input, Dense, Activation, Dropout
-from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, BatchNormalization, Flatten
+from keras.layers import ZeroPadding2D, MaxPooling2D, AveragePooling2D, Conv2D, BatchNormalization, Flatten, GlobalAveragePooling2D, GlobalMaxPooling2D
 from keras.models import Model
 
 from keras.utils.training_utils import multi_gpu_model
@@ -218,7 +218,7 @@ def create_own_base_model(input_shape, pooling='avg'):
     if pooling == 'max':
         X = GlobalMaxPooling2D((2,2), name='max_pool')(X)
     elif pooling == 'avg':
-        X = GlobalAveragePooling2D((2,2), name='avg_pool')(X)
+        X = AveragePooling2D((2,2), name='avg_pool')(X)
 
     # FLATTEN X (means convert it to a vector)
     X = Flatten()(X)
