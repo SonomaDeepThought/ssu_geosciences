@@ -114,6 +114,7 @@ def load_images(folder, img_size):
                         np_img = np.array(rbgimg)
                         images.append(np_img)
 
+        
         return images
 
 
@@ -296,6 +297,7 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                 num_x_aug_two = len(next(os.walk(data_augment_directory +
                                          '/' + dirs[1]))[2])
 
+                
                 # add our image counters
                 num_x_one += num_x_aug_one
                 num_x_two += num_x_aug_two
