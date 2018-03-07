@@ -82,6 +82,7 @@ def main(loaded_params):
                                            num_epochs=num_epochs,
                                            use_class_weights=use_class_weights)
 
+        
         save_results(output_directory, model_name, history)
     else:
 

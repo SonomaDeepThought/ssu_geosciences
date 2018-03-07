@@ -79,7 +79,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                         class_weight=cw)
                         
     
-    
+    print("eval: ", str(model.evaluate(X_dev, Y_dev)))
     # preds = model.predict(X_dev, Y_dev)
     return history
 
