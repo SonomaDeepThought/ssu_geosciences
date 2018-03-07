@@ -29,7 +29,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     for the first epoch's accuracy                                          
     '''
 
-
+    '''
     train_datagen = ImageDataGenerator(
         rotation_range=40, # degrees we can rotate max 180                     
         width_shift_range=0.2,
@@ -45,7 +45,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     train_datagen.fit(X_train)
     test_datagen.fit(X_dev)
 
-
+    '''
 
     '''                                                                         
     
@@ -65,12 +65,19 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     if use_class_weights:
         cw = get_class_weights(Y_train)
     print('class weights: ', str(cw))
+    '''
     history =  model.fit_generator(train_datagen.flow(X_train,
                                                       Y_train,
                                                       batch_size=batch_size),
                                    epochs = num_epochs,
                                    class_weight=cw)
-    
+   '''
+    history = model.fit(X_train,
+                        Y_train,
+                        batch_size=batch_size,
+                        epochs=num_epochs,
+                        class_weight=cw)
+                        
     
     
     # preds = model.predict(X_dev, Y_dev)

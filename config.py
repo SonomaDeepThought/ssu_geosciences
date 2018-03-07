@@ -6,7 +6,7 @@
 # 'VGG19'
 # 'Xception'
 # 'SSUGeosciences'
-model_name = 'InceptionResNetV2'
+model_name = 'InceptionV3'
 
 batch_size = 32
 
@@ -16,11 +16,11 @@ learning_rate = 0.001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 6
+k_folds = 1
 
 
 # number of gpus to use.
-num_gpus = 2
+num_gpus = 1
 
 # if num_gpus is set to 1, use this to define the gpu to run on.
 # if gpu_to_use does not exist in the list of gpus, the model will be run on
@@ -34,8 +34,11 @@ gpu_to_use = 2
 use_class_weights = False
 
 
-# -NOT YET IMPLEMENTED-
-use_oversampling = False
+# - WARNING - this boolean clobbers use_data_augmentation
+#
+# Take the minority class and duplicate its images until it is within a small margin
+# of the majority class.
+use_oversampling = True
 
 
 # to modify the data augmentation settings edit tools/kt_utils.py

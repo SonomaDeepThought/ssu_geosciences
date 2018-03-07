@@ -1,6 +1,8 @@
 *~
 makefile
-/__pycache__/
-/results/
 /pet_images/
+**/__pycache__/
+/results/
 /data_augmentation/
+test_tools.py
+

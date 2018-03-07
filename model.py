@@ -43,6 +43,27 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
     model = Model(inputs=input, outputs=x)
 
+    optimizer = select_optimizer(optimizer=optimizer,
+                                 learning_rate=learning_rate)
+
+    print("optimizer: ", str(optimizer.get_config()))
+    # spread our work across num_gpus
+    start = time.time()
+
+    if num_gpus <= get_available_gpus() and num_gpus > 1:
+        model = multi_gpu_model(model, gpus=num_gpus)
+
+        print("time to spread model across multiple gpus: ", str(time.time() -
+                                                                 start))
+        
+    model.compile(optimizer=optimizer, loss='binary_crossentropy',
+                  metrics=['accuracy'])
+
+    return model
+
+
+def select_optimizer(optimizer=None, learning_rate=0.001):
+    print("passed learning_rate: ", str(learning_rate))
     if optimizer is None:
         optimizer = keras.optimizers.Adam(lr=learning_rate)
     elif optimizer == 'sgd':
@@ -61,26 +82,8 @@ def create_final_layers(base_model, img_size, optimizer=None,
         optimizer = keras.optimizers.Nadam(lr=learning_rate)
     else:
         print("optimizer name not recognized")
-
-        #    print("optimizer: ", optimizer)
-        #    print("optimizer config: ", optimizer.get_config())
-
-    # spread our work across num_gpus
-    start = time.time()
-
-    if num_gpus <= get_available_gpus() and num_gpus > 1:
-        model = multi_gpu_model(model, gpus=num_gpus)
-
-        print("time to spread model across multiple gpus: ", str(time.time() -
-                                                                 start))
         
-    model.compile(optimizer=optimizer, loss='binary_crossentropy',
-                  metrics=['accuracy'])
-    
-    return model
-
-
-
+    return optimizer
 
 
 def load_base_model(model_name, input_shape=None):
@@ -167,6 +170,11 @@ def load_base_model(model_name, input_shape=None):
         print("model name not recognized.")
         return
 
+    # remove the final layer used by the CNN to then be able to append our own
+    # fully connected layers
+    base_model.layers.pop()
+
+    
     print('\n' + base_model.name, ' base model with input shape',
           base_model.input_shape, ' loaded')
 
@@ -175,6 +183,7 @@ def load_base_model(model_name, input_shape=None):
     for layer in base_model.layers:
         layer.trainable = False
 
+    
     return base_model, img_size
             
             
