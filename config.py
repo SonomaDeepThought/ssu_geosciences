@@ -6,17 +6,17 @@
 # 'VGG19'
 # 'Xception'
 # 'SSUGeosciences'
-model_name = 'InceptionResNetV2'
+model_name = 'InceptionV3'
 
 batch_size = 32
 
-num_epochs = 1
+num_epochs = 6
 
-learning_rate = 0.001
+learning_rate = 0.02
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 2
+k_folds = 1
 
 
 # number of gpus to use.
@@ -43,7 +43,7 @@ use_oversampling = False
 
 # to modify the data augmentation settings edit tools/kt_utils.py
 # In data_augment() modify the ImageDataGenerator function params
-use_data_augmentation = False
+use_data_augmentation = True
 
 
 # -NOT YET IMPLEMENTED-
