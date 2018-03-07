@@ -43,6 +43,27 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
     model = Model(inputs=input, outputs=x)
 
+    optimizer = select_optimizer(optimizer=optimizer,
+                                 learning_rate=learning_rate)
+
+    print("optimizer: ", str(optimizer.get_config()))
+    # spread our work across num_gpus
+    start = time.time()
+
+    if num_gpus <= get_available_gpus() and num_gpus > 1:
+        model = multi_gpu_model(model, gpus=num_gpus)
+
+        print("time to spread model across multiple gpus: ", str(time.time() -
+                                                                 start))
+        
+    model.compile(optimizer=optimizer, loss='binary_crossentropy',
+                  metrics=['accuracy'])
+
+    return model
+
+
+def select_optimizer(optimizer=None, learning_rate=0.001):
+    print("passed learning_rate: ", str(learning_rate))
     if optimizer is None:
         optimizer = keras.optimizers.Adam(lr=learning_rate)
     elif optimizer == 'sgd':
@@ -61,29 +82,11 @@ def create_final_layers(base_model, img_size, optimizer=None,
         optimizer = keras.optimizers.Nadam(lr=learning_rate)
     else:
         print("optimizer name not recognized")
-
-        #    print("optimizer: ", optimizer)
-        #    print("optimizer config: ", optimizer.get_config())
-
-    # spread our work across num_gpus
-    start = time.time()
-
-    if num_gpus <= get_available_gpus() and num_gpus > 1:
-        model = multi_gpu_model(model, gpus=num_gpus)
-
-        print("time to spread model across multiple gpus: ", str(time.time() -
-                                                                 start))
         
-    model.compile(optimizer=optimizer, loss='binary_crossentropy',
-                  metrics=['accuracy'])
-    
-    return model
+    return optimizer
 
 
-
-
-
-def load_base_model(model_name, input_shape=None):
+def load_base_model(model_name, input_shape=None, fine_tuning=None):
     '''
     model_name : The name of the model we wish to implement
     input_shape : the tensor shape of the image we wish to use on our model
@@ -167,16 +170,35 @@ def load_base_model(model_name, input_shape=None):
         print("model name not recognized.")
         return
 
+    # remove the final layer used by the CNN to then be able to append our own
+    # fully connected layers
+    base_model.layers.pop()
+
+    
+    
+    
     print('\n' + base_model.name, ' base model with input shape',
           base_model.input_shape, ' loaded')
 
-    # Since we are implementing transfer learning, we do not wish to train the
-    # base model
-    for layer in base_model.layers:
-        layer.trainable = False
-
+    fine_tune_model(base_model, fine_tuning)        
     return base_model, img_size
-            
+
+
+def fine_tune_model(model, fine_tuning):
+    if fine_tuning is None:
+        return
+
+    count = 1
+    for layer in reversed(model.layers):
+        # exlclude all layers that are not trainable
+        if layer.count_params() > 0:
+            if count in fine_tuning:
+                layer.trainable = True
+            else:
+                layer.trainable = False
+            count += 1
+
+    return
             
 def create_own_base_model(input_shape, pooling='avg'):
     '''
