@@ -194,8 +194,10 @@ def fine_tune_model(model, fine_tuning):
         if layer.count_params() > 0:
             if count in fine_tuning:
                 layer.trainable = True
+                print("layer ", str(count), " True")
             else:
                 layer.trainable = False
+                print("layer ", str(count), " False")
             count += 1
 
     return

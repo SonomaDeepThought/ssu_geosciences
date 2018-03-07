@@ -10,13 +10,13 @@ model_name = 'InceptionV3'
 
 batch_size = 32
 
-num_epochs = 6
+num_epochs = 9
 
-learning_rate = 0.001
+learning_rate = 0.0008
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 1
+k_folds = 8
 
 
 # number of gpus to use.
@@ -38,7 +38,7 @@ use_class_weights = False
 #
 # Take the minority class and duplicate its images until it is within a small margin
 # of the majority class.
-use_oversampling = True
+use_oversampling = False
 
 
 # to modify the data augmentation settings edit tools/kt_utils.py
@@ -48,6 +48,13 @@ use_data_augmentation = True
 
 # -NOT YET IMPLEMENTED-
 use_attention_networks = False
+
+# enable training on the CNN for specific layers.
+# A CNN has n-layers, we will enable training on layers n-fine_tuning sub i
+# for all i in len(fine_tuning)
+# that is all of these layers starting from the output of the CNN will be
+# trained
+fine_tuning = {1, 2, 3, 4, 5, 6, 7} 
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.

@@ -469,6 +469,7 @@ def parse_config_file():
         loaded_params['use_oversampling'] = config.use_oversampling
         loaded_params['use_data_augmentation'] = config.use_data_augmentation
         loaded_params['use_attention_networks'] = config.use_attention_networks
+        loaded_params['fine_tuning'] = config.fine_tuning
         gpus =  get_available_gpus()
         if gpus >= config.num_gpus:
                 loaded_params['num_gpus'] = config.num_gpus

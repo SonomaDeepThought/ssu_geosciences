@@ -45,9 +45,9 @@ def main(loaded_params):
     use_oversampling = loaded_params['use_oversampling']
     use_data_augmentation = loaded_params['use_data_augmentation']
     use_attention_networks = loaded_params['use_attention_networks']
-
+    fine_tuning = loaded_params['fine_tuning']
     
-    base_model, img_size = load_base_model(model_name)
+    base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
 
     # load our images
     X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory, use_oversampling=use_oversampling)
@@ -89,13 +89,17 @@ def main(loaded_params):
         data = np.concatenate((X_train, X_dev), axis=0)
         labels = np.concatenate((Y_train, Y_dev), axis=0)
 
-        
-        skf = StratifiedKFold(n_splits = k_folds, shuffle=False)
+        # we shuffle to ensure that on any given kfold we are not
+        # simply training/testing on a single class 
+        skf = StratifiedKFold(n_splits = k_folds, shuffle=True)
         scores = np.zeros(k_folds)
         idx = 0
         cm_strings = []
         for (train, test) in skf.split(data,labels):
             print ("Running Fold", idx+1, "/", k_folds)
+            base_model = None
+            base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
+        
             completed_model = None
 
             completed_model = create_final_layers(base_model,
