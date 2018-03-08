@@ -10,13 +10,13 @@ model_name = 'InceptionV3'
 
 batch_size = 32
 
-num_epochs = 9
+num_epochs = 1
 
 learning_rate = 0.0008
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
-k_folds = 8
+k_folds = 1
 
 
 # number of gpus to use.

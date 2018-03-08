@@ -21,10 +21,13 @@ import numpy as np
 import keras
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Model
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
 
+# visualization library
+import scipy.misc
 
 
 def main(loaded_params):
@@ -82,7 +85,12 @@ def main(loaded_params):
                                            num_epochs=num_epochs,
                                            use_class_weights=use_class_weights)
 
+        # New stuff
         save_results(output_directory, model_name, history)
+        intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
+        intermediate_output = intermediate_layer_model.predict(X_test)
+        reshaped_array = np.reshape(intermediate_output, (64,64))
+        scipy.misc.imsave('third_to_last_neuron_out.jpg', reshaped_array)
     else:
 
         # for k-fold we must combine our data into a single entity.
@@ -126,7 +134,6 @@ def main(loaded_params):
         print("mean: ", str(scores.mean()))
         save_kfold_accuracy(output_directory, model_name, scores, cm_strings)
         
-
 
 
 
