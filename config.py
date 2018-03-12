@@ -87,3 +87,5 @@ data_augmentation_directory = './data_augmentation'
 # is stored above
 optimizer = None
 
+# Bool to determine whether the last layer is being saved
+save_last_layer = True

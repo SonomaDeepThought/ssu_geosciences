@@ -49,6 +49,7 @@ def main(loaded_params):
     use_data_augmentation = loaded_params['use_data_augmentation']
     use_attention_networks = loaded_params['use_attention_networks']
     fine_tuning = loaded_params['fine_tuning']
+    save_last_layer = loaded_params['save_last_layer']
     
     base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
 
@@ -86,11 +87,12 @@ def main(loaded_params):
                                            use_class_weights=use_class_weights)
 
         # New stuff
-        save_results(output_directory, model_name, history)
-        intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
-        intermediate_output = intermediate_layer_model.predict(X_test)
-        reshaped_array = np.reshape(intermediate_output, (64,64))
-        scipy.misc.imsave('third_to_last_neuron_out.jpg', reshaped_array)
+        if save_last_layer:
+            save_results(output_directory, model_name, history)
+            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
+            intermediate_output = intermediate_layer_model.predict(X_test)
+            reshaped_array = np.reshape(intermediate_output, (64,64))
+            scipy.misc.imsave('third_to_last_neuron_out.jpg', reshaped_array)
     else:
 
         # for k-fold we must combine our data into a single entity.
