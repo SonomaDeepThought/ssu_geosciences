@@ -68,7 +68,6 @@ def main(loaded_params):
 
     
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
-
     
     if k_folds == None or k_folds <= 1:
         print("building model")
@@ -86,13 +85,16 @@ def main(loaded_params):
                                            num_epochs=num_epochs,
                                            use_class_weights=use_class_weights)
 
+        save_results(output_directory, model_name, history)
         # New stuff
         if save_last_layer:
-            save_results(output_directory, model_name, history)
-            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
-            intermediate_output = intermediate_layer_model.predict(X_test)
-            reshaped_array = np.reshape(intermediate_output, (64,64))
-            scipy.misc.imsave('third_to_last_neuron_out.jpg', reshaped_array)
+            for i in range(len(X_dev)):
+                if Y_dev[i] == 1:
+                    pic = np.multiply(np.ones((1,227,227,3)),X_dev[i])
+                    intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
+                    intermediate_output = intermediate_layer_model.predict(pic)
+                    reshaped_array = np.reshape(intermediate_output, (64,64))
+                    scipy.misc.imsave('features/third_to_last_neuron_out'+str(i)+'.jpg', reshaped_array)
     else:
 
         # for k-fold we must combine our data into a single entity.
