@@ -8,9 +8,11 @@
 # 'SSUGeosciences'
 model_name = 'InceptionV3'
 
+ensembles = ['InceptionV3', 'ResNet50', 'InceptionResNetV2', 'Xception', 'VGG16']
+
 batch_size = 32
 
-num_epochs = 16
+num_epochs = 4 
 
 learning_rate = 0.0006
 

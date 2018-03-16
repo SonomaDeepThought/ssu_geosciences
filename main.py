@@ -25,10 +25,12 @@ from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
 
+import matplotlib
 
 
 def main(loaded_params):
 
+    ensembles = loaded_params['ensembles']
     model_name = loaded_params['model_name']
     num_epochs = loaded_params['num_epochs']
     batch_size = loaded_params['batch_size']
@@ -47,7 +49,14 @@ def main(loaded_params):
     use_attention_networks = loaded_params['use_attention_networks']
     fine_tuning = loaded_params['fine_tuning']
     
-    base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
+    models = []
+    if len(ensembles) > 1:
+        for model in ensembles:
+            base_model, img_size = load_base_model(model, fine_tuning=fine_tuning, input_shape = (224,224,3))
+            models.append(base_model)
+    else:
+        base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
+        models.append(base_model)
 
     # load our images
     X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory, use_oversampling=use_oversampling)
@@ -68,22 +77,49 @@ def main(loaded_params):
     
     if k_folds == None or k_folds <= 1:
         print("building model")
-        completed_model = create_final_layers(base_model,
-                                          img_size,
-                                          learning_rate=learning_rate,
-                                          optimizer=optimizer, num_gpus=num_gpus)
-        print('finished building model\nTraining Model')
-        history = train_and_evaluate_model(completed_model,
+        completed_models = []
+        histories = []
+        for model in models:
+            completed_model = create_final_layers(model,
+                                              img_size,
+                                              learning_rate=learning_rate,
+                                              optimizer=optimizer, num_gpus=num_gpus)
+            print('finished building model\nTraining Model')
+            histories.append(train_and_evaluate_model(completed_model,
                                            X_train,
                                            Y_train,
                                            X_dev,
                                            Y_dev,
                                            batch_size=batch_size,
                                            num_epochs=num_epochs,
-                                           use_class_weights=use_class_weights)
-
+                                           use_class_weights=use_class_weights))
+            completed_models.append(completed_model)
         
-        save_results(output_directory, model_name, history)
+        if len(completed_models) >1:
+            ens_count = 0
+            Y_pred_avg = []
+            for i in range(X_dev.shape[0]):
+                current_pred = []
+                for completed_model in completed_models:
+                    out_1 = completed_model.predict(np.expand_dims(X_dev[i], axis=0))
+                    pred_out1 = out_1
+                    current_pred.append(pred_out1[0][0])
+                # print("The current predictions are: ", current_pred)
+                Y_pred_avg.append(sum(current_pred)/len(current_pred))   
+                # print("The ensemble predicts: ", Y_pred_avg[i])
+                avg = Y_pred_avg[i]>0.5
+                if avg == Y_dev[i]:
+                    ens_count += 1
+                # Y_pred_avg.append(avg)
+                if False:#pred_out1 != pred_out2: 
+                    print("\nThe predicted outputs are: ", out_1, " , ",out_2, "\n")
+                    avg = (out_1 + out_2) / 2
+                    print("Actual:", Y_dev[i])
+                    print("Predicted:",avg)        
+            print("\n\nthe Ensemble accuracy is:", ens_count/Y_dev.shape[0])
+
+        #for history in histories:
+            #save_results(output_directory, model_name, history)
     else:
 
         # for k-fold we must combine our data into a single entity.

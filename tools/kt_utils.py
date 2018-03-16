@@ -454,6 +454,7 @@ def initialize_output_directory(directory, model_name):
 
 def parse_config_file():
         loaded_params = {}
+        loaded_params['ensembles'] = config.ensembles
         loaded_params['model_name'] = config.model_name
         loaded_params['num_epochs'] = config.num_epochs
         loaded_params['batch_size'] = config.batch_size
