@@ -35,10 +35,10 @@ def create_final_layers(base_model, img_size, optimizer=None,
     output_conv = base_model(input)
 
     x = Dense(4096, activation='relu',
-              name = 'fc_dense1')(output_conv)
-    x = Dropout(dropout_rate, name='fc_dropout1')(x)
+              name = 'fully_connected__dense1')(output_conv)
+    x = Dropout(dropout_rate, name='fully_connected_dropout')(x)
     x = Dense(2048, activation='relu',
-              name = 'fc_dense2')(x)
+              name = 'fully_connected_dense2')(x)
     x = Dense(1, activation='sigmoid', name='predictions')(x)
 
     model = Model(inputs=input, outputs=x)

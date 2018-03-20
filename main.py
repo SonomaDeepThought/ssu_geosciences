@@ -28,6 +28,12 @@ from sklearn.utils import class_weight
 import matplotlib
 
 
+#Keras visualization
+from keras.utils import plot_model
+import pydot
+
+
+
 def main(loaded_params):
 
     ensembles = loaded_params['ensembles']
@@ -95,31 +101,47 @@ def main(loaded_params):
                                            use_class_weights=use_class_weights))
             completed_models.append(completed_model)
         
+	# if more than one model is present then we have an ensemble
         if len(completed_models) >1:
+            all_correct = 0
+            all_predictions = []
+            # for completed_model in completed_models:
+            for i in range(len(completed_models)):
+                plot_model(completed_models[i], to_file='model'+str(i)+'.png')
+                model_predictions = []
+                for i in range(X_dev.shape[0]):
+                    model_predictions.append(completed_models[i].predict(np.expand_dims(X_dev[i], axis=0)))
+                all_predictions.append(model_predictions)
+            all_predictions = (np.sum(all_predictions, axis=0)/len(models))>0.5
+            for i in range(X_dev.shape[0]):
+                if all_predictions[i] == Y_dev[i]:
+                    all_correct += 1
+            print("\n\nthe Ensemble accuracy is:", all_correct/Y_dev.shape[0])
+            
+                
+        '''
+	    # ens_count is the number of images that have been correctly classified by the ensemble
             ens_count = 0
             Y_pred_avg = []
+	    # for each of the images make a prediction
             for i in range(X_dev.shape[0]):
                 current_pred = []
+	        # for each of the models in the ensemble make a prediction on the image
                 for completed_model in completed_models:
                     out_1 = completed_model.predict(np.expand_dims(X_dev[i], axis=0))
                     pred_out1 = out_1
                     current_pred.append(pred_out1[0][0])
-                # print("The current predictions are: ", current_pred)
+	        # Average and threshold the image, then if it was correct increment the amount of
+		# images that the ensemble has been able to correctly classify.
                 Y_pred_avg.append(sum(current_pred)/len(current_pred))   
-                # print("The ensemble predicts: ", Y_pred_avg[i])
                 avg = Y_pred_avg[i]>0.5
                 if avg == Y_dev[i]:
                     ens_count += 1
-                # Y_pred_avg.append(avg)
-                if False:#pred_out1 != pred_out2: 
-                    print("\nThe predicted outputs are: ", out_1, " , ",out_2, "\n")
-                    avg = (out_1 + out_2) / 2
-                    print("Actual:", Y_dev[i])
-                    print("Predicted:",avg)        
             print("\n\nthe Ensemble accuracy is:", ens_count/Y_dev.shape[0])
 
-        #for history in histories:
-            #save_results(output_directory, model_name, history)
+        '''
+        #for i in range(len(ensembles)):
+        #    save_results(output_directory, ensembles[i], histories[i])
     else:
 
         # for k-fold we must combine our data into a single entity.
