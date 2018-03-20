@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 from PIL import ImageFile
+import scipy.misc
 ImageFile.LOAD_TRUNCATED_IMAGES = True # allow truncated images to load 
 
 from keras.preprocessing.image import ImageDataGenerator
@@ -117,6 +118,37 @@ def load_images(folder, img_size):
         
         return images
 
+
+def save_images(Y_pred, Y_actual, images, model_name,  ensembles=False):
+        '''
+        Y_preds: the unrounded predictions
+        Y_actual: the labels
+        images: the array containing all the images
+        '''
+        for i in range(0, images.shape[0]):
+
+                conf = np.round(Y_pred, decimals=4)
+                image_name = (model_name + "_" + str(i) +
+                              "_confid_" +
+                              str(conf[i]) + ".jpg")
+                Y_i = np.round(Y_pred[i])
+                if Y_i == Y_actual[i] :
+                        # save image in correct folder
+                        image_dir = "./classified_images/correct/"
+                        if ensembles:
+                                image_dir += "ensembles/"
+                        save_image(image_dir + image_name, images[i])
+                else:
+                        # save image in incorrect folder
+                        image_dir = "./classified_images/incorrect/"
+                        if ensembles:
+                                image_dir += "ensembles/"
+
+                        save_image(image_dir + image_name,
+                                   images[i])
+                        
+def save_image(file_path, image):
+        scipy.misc.imsave(file_path, image)
 
 def oversample(x, y, num_data_to_add):
         ''' 
@@ -429,6 +461,10 @@ def save_results(directory, model_name, history):
         copy the config.py file to directory/model_name/accuracy.txt
         append the results to the bottom of the file as a python block comment
         '''
+
+        if not os.path.exists(directory +'/' + model_name):
+                os.makedirs(directory + '/' + model_name)
+                
         from shutil import copyfile
         filename = str(history.history['acc'][len(history.history['acc'])-1])
         copyfile('./config.py', directory + '/' + model_name + '/' +
@@ -449,8 +485,12 @@ def save_results(directory, model_name, history):
 def initialize_output_directory(directory, model_name):
         if not os.path.exists(directory):
                 os.makedirs(directory)
-        if not os.path.exists(directory + '/' + model_name):
-                os.makedirs(directory + '/' + model_name)
+        if len(model_name) == 1:
+                if not os.path.exists(directory + '/' + model_name[0]):
+                        os.makedirs(directory + '/' + model_name[0])
+        else:
+                if not os.path.exists(directory + '/' + "ensemble"):
+                        os.makedirs(directory + '/' + "ensemble")
 
 def parse_config_file():
         loaded_params = {}

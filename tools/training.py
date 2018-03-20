@@ -1,6 +1,7 @@
 from sklearn.utils import class_weight
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
+from tools.kt_utils import *
 
 def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                              batch_size=32, num_epochs=1,
@@ -29,49 +30,14 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     for the first epoch's accuracy                                          
     '''
 
-    '''
-    train_datagen = ImageDataGenerator(
-        rotation_range=40, # degrees we can rotate max 180                     
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True,
-        fill_mode='nearest')
 
-
-    test_datagen = ImageDataGenerator()
-
-    train_datagen.fit(X_train)
-    test_datagen.fit(X_dev)
-
-    '''
-
-    '''                                                                         
     
-    history =  model.fit_generator(train_datagen.flow(X_train,                 
-    Y_train,                  
-    batch_size=batch_size),   
-    samples_per_epoch=X_train.shape[0] / batch_size,
-    epochs = num_epochs,                         
-    validation_data=test_datagen.flow(X_dev,     
-    Y_dev,     
-    batch_size=batch_size),                    
-    nb_val_samples=X_dev.shape[0] / batch_size)  
-    
-    
-    '''
+
     cw = None
     if use_class_weights:
         cw = get_class_weights(Y_train)
     print('class weights: ', str(cw))
-    '''
-    history =  model.fit_generator(train_datagen.flow(X_train,
-                                                      Y_train,
-                                                      batch_size=batch_size),
-                                   epochs = num_epochs,
-                                   class_weight=cw)
-   '''
+    
     history = model.fit(X_train,
                         Y_train,
                         batch_size=batch_size,
@@ -80,8 +46,14 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
                         
     
     print("eval: ", str(model.evaluate(X_dev, Y_dev)))
-    # preds = model.predict(X_dev, Y_dev)
-    return history
+    preds = model.predict(X_dev)
+
+
+
+    save_images(preds, Y_dev, X_dev, model.layers[1].name)
+
+
+    return history, preds
 
 
 def k_fold(model, X_train, Y_train, X_dev, Y_dev, batch_size, num_epochs, use_class_weights=True):

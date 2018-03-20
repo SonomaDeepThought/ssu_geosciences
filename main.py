@@ -18,6 +18,7 @@ from tools.training import *
 from model import *
 
 import numpy as np
+np.random.seed(1337)
 import keras
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
@@ -46,8 +47,17 @@ def main(loaded_params):
     use_data_augmentation = loaded_params['use_data_augmentation']
     use_attention_networks = loaded_params['use_attention_networks']
     fine_tuning = loaded_params['fine_tuning']
+
+    base_models = []
+    if len(model_name) > 1:
+        input_shape = (224,224,3)
+    else:
+        input_shape = None
     
-    base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
+    for model in model_name:
+        base_model, img_size = load_base_model(model, fine_tuning=fine_tuning,
+                                               input_shape=input_shape)
+        base_models.append(base_model)
 
     # load our images
     X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory, use_oversampling=use_oversampling)
@@ -67,23 +77,52 @@ def main(loaded_params):
 
     
     if k_folds == None or k_folds <= 1:
-        print("building model")
-        completed_model = create_final_layers(base_model,
-                                          img_size,
-                                          learning_rate=learning_rate,
-                                          optimizer=optimizer, num_gpus=num_gpus)
-        print('finished building model\nTraining Model')
-        history = train_and_evaluate_model(completed_model,
-                                           X_train,
-                                           Y_train,
-                                           X_dev,
-                                           Y_dev,
-                                           batch_size=batch_size,
-                                           num_epochs=num_epochs,
-                                           use_class_weights=use_class_weights)
+        print("building models")
+        if len(model_name) > 1:
+            output_directory += '/ensemble'
+        model_preds = []
+        i = 0
+        for model in base_models:
+            completed_model = create_final_layers(model,
+                                                  img_size,
+                                                  learning_rate=learning_rate,
+                                                  optimizer=optimizer,
+                                                  num_gpus=num_gpus)
+            
+            print('finished building model\nTraining Model')
+            history, preds = train_and_evaluate_model(completed_model,
+                                               X_train,
+                                               Y_train,
+                                               X_dev,
+                                               Y_dev,
+                                               batch_size=batch_size,
+                                               num_epochs=num_epochs,
+                                               use_class_weights=use_class_weights)
+            cm = confusion_matrix(Y_dev,
+                                  preds, labels=[0,1])
 
+            print_cm(cm, labels=['Non-Sigma', 'Sigma'])
+            model_preds.append(preds)
+            save_results(output_directory, model_name[i], history)
+            i += 1
+
+
+        # handle ensemble operations
+        avg_preds = np.average(model_preds, axis=0)
+        # store our images
+        save_images(avg_preds, Y_dev, X_dev, "ensemble",  ensembles=True)
+        avg_preds = avg_preds > 0.5 # apply binary classifier thresholding        
+        avg_correct = Y_dev == avg_preds # get an array of correct answers
+        print("----------------------------------------")
+        print("ensemble accuracy: ",
+              str(np.sum(avg_correct) / len(avg_correct)))
+
+        cm = confusion_matrix(Y_dev,
+                              avg_preds, labels=[0,1])
+
+        print_cm(cm, labels=['Non-Sigma', 'Sigma'])
         
-        save_results(output_directory, model_name, history)
+        
     else:
 
         # for k-fold we must combine our data into a single entity.
