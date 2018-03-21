@@ -1,3 +1,7 @@
+run:
+	make clean
+	python main.py
+
 clean:
 	rm -f *~ 
 	find ./ -depth -name ".AppleDouble" -exec rm -Rf {} \;
@@ -6,4 +10,5 @@ clean:
 	rm -f ./classified_images/correct/ensembles/* 
 	rm -f ./classified_images/incorrect/ensembles/* 
 	-rm -f ./classified_images/correct/* 
-	-rm -f ./classified_images/incorrect/* 
+	-rm -f ./classified_images/incorrect/*
+

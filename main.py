@@ -28,6 +28,7 @@ from sklearn.utils import class_weight
 
 
 
+
 def main(loaded_params):
 
     model_name = loaded_params['model_name']
@@ -62,6 +63,9 @@ def main(loaded_params):
     # load our images
     X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory, use_oversampling=use_oversampling)
 
+
+
+    
     # Normalize image vectors
     X_train = X_train_orig/255.
     X_dev = X_dev_orig/255.
@@ -72,7 +76,9 @@ def main(loaded_params):
     Y_dev = Y_dev_orig
     Y_test = Y_test_orig
 
-    
+    for i in range(0, X_dev.shape[0]):
+        save_image("./test_sorted/" + str(i) + ".jpg", X_dev[i])
+        
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
 
     
@@ -106,7 +112,7 @@ def main(loaded_params):
             save_results(output_directory, model_name[i], history)
             i += 1
 
-
+            print(str(completed_model.predict(np.expand_dims(X_dev[55], axis=0))))
         # handle ensemble operations
         avg_preds = np.average(model_preds, axis=0)
         # store our images
@@ -121,6 +127,8 @@ def main(loaded_params):
                               avg_preds, labels=[0,1])
 
         print_cm(cm, labels=['Non-Sigma', 'Sigma'])
+        
+
         
         
     else:

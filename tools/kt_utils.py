@@ -6,6 +6,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True # allow truncated images to load
 
 from keras.preprocessing.image import ImageDataGenerator
 
+import matplotlib.pyplot as plt
 import os
 import os.path
 
@@ -205,23 +206,72 @@ def data_augment(x, y, num_data_to_add, directory):
                     fill_mode='reflect')
 
         datagen.fit(x)
-        p = x.copy()
         q = y.copy()
         num_added = 0
         for x_batch, y_batch in datagen.flow(x, y, batch_size=batch_size,
                                              save_to_dir=directory,
                                              save_prefix='data_aug',
                                              save_format='jpeg'):
-                p = np.concatenate((p, x_batch))
+                if num_added == 0:
+                        p = x_batch
+                else :
+                        p = np.concatenate((p,x_batch))
                 q = np.concatenate((q, y_batch))
                 num_added += x_batch.shape[0]
                 if num_added >= num_data_to_add:
                         break
                         
 
-
+        p = sort_aug_data(x, directory)
         return p,q
 
+
+def sort_aug_data(x, directory):
+        import glob
+        images = glob.glob(directory + "/*")
+        images = sorted_nicely(images)
+        img_size = x.shape[1]
+
+        # sorted images from directory
+        x_two = []
+        for filename in images:
+                img = Image.open(filename)
+                if img is not None:
+                        rbgimg = Image.new("RGB", img.size)
+                        rbgimg.paste(img)
+                        rbgimg = rbgimg.resize((img_size, img_size), Image.ANTIALIAS)
+                        np_img = np.array(rbgimg)
+                        x_two.append(np_img)
+
+        
+        x_two = np.array(x_two)
+
+        import re
+
+        indeces = [int(re.split('_', myImg)[3]) for myImg in images]
+
+        x_prime = np.expand_dims(x[0], axis=0)
+        idx = 0
+        for i in range(0,x_two.shape[0]):
+                if idx != int(indeces[i]):
+                        idx += 1
+                        if idx >= x.shape[0]:
+                                break
+                        x_prime = np.concatenate((x_prime,
+                                                  np.expand_dims(x[idx],
+                                                                 axis=0)))
+                x_prime = np.concatenate((x_prime,
+                                          np.expand_dims(x_two[i],
+                                                         axis=0)))
+                
+        return x_prime
+
+def sorted_nicely( l ):
+        """ Sort the given iterable in the way that humans expect."""
+        import re
+        convert = lambda text: int(text) if text.isdigit() else text
+        alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+        return sorted(l, key = alphanum_key)
 
 def load_subset(tenObject1, tenObject2, ratio, rangeStart1,
                 rangeStart2, dRange1, dRange2):
@@ -298,6 +348,7 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         x_two = np.array(load_images(image_directory + '/' + dirs[1],
                                      img_size))
 
+        save_image("test_image.jpg", x_one[0])
         # generate our original labels
         y_one = np.ones((x_one.shape[0], 1))
         y_two = np.zeros((x_two.shape[0], 1))
@@ -350,10 +401,12 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                 # append them to their correct collection
                 if x_one_aug.shape[0] != 0:
                         print("Loaded ", str(x_one_aug.shape[0]), " augmented images")
-                        x_one = np.concatenate((x_one, x_one_aug))
-                if x_two_aug.shape[0] != 0:
-                        print("Loaded ", str(x_two_aug.shape[0]), " augmented images")
-                        x_two = np.concatenate((x_two, x_two_aug))
+                        x_one = sort_aug_data(x_one, data_augment_directory +
+                                              '/' + dirs[0])
+                        
+#                if x_two_aug.shape[0] != 0:
+#                        print("Loaded ", str(x_two_aug.shape[0]), " augmented images")
+#                        x_two = np.concatenate((x_two, x_two_aug))
 
 
                 # regenerate our original labels with our aug labels included
@@ -370,7 +423,10 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                                             delta_size_two,
                                             data_augment_directory + '/' + dirs[1])
                         
-               
+
+
+        print("x_one shape: ", str(x_one.shape))
+        print("x_two shape: ", str(x_two.shape))
         
         # X_images is the concatenation of all images
         # Y_images is the concatenation of all labels
@@ -432,6 +488,9 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                                      y_dev.shape[0] +
                                      y_test.shape[0]))
 
+
+
+                
         return x_train, y_train, x_dev, y_dev, x_test, y_test
 
 
