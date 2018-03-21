@@ -76,8 +76,6 @@ def main(loaded_params):
     Y_dev = Y_dev_orig
     Y_test = Y_test_orig
 
-    for i in range(0, X_dev.shape[0]):
-        save_image("./test_sorted/" + str(i) + ".jpg", X_dev[i])
         
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
 
