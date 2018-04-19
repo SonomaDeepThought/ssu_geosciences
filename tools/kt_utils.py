@@ -107,6 +107,7 @@ def load_images(folder, img_size):
         to img_size x img_size
         '''
         images = []
+        filenames = []
         for filename in os.listdir(folder):
                 img = Image.open(os.path.join(folder, filename))
                 if img is not None:
@@ -115,9 +116,11 @@ def load_images(folder, img_size):
                         rbgimg = rbgimg.resize((img_size, img_size), Image.ANTIALIAS)
                         np_img = np.array(rbgimg)
                         images.append(np_img)
+                        filenames.append(filename)
 
         
-        return images
+        return images, filenames
+
 
 
 def save_images(Y_pred, Y_actual, images, model_name,  ensembles=False):
@@ -190,7 +193,7 @@ def data_augment(x, y, num_data_to_add, directory):
         Return x,y as is if num_data_to_add is <= 0 
         '''
 
-        batch_size = 32
+        batch_size = 1
         if num_data_to_add <= 0 or num_data_to_add < batch_size:
                 return x, y
 
@@ -325,7 +328,13 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         assert(ratio_train + ratio_dev + ratio_test == 1)
 
         dirs = os.listdir(image_directory)
+        for d in dirs:
+                if d == './AppleDouble':
+                        dirs.remove(d)
+                
+                
         assert(len(dirs) == 2)
+
 
 
         # oversampling takes precedence over data augmentaton
@@ -335,33 +344,64 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         delta_size_one = 0
         delta_size_two = 0
 
-        # Count the number of images in our directories
-        num_x_one = len(next(os.walk(image_directory + '/'
-                                     + dirs[0]))[2])
-        num_x_two = len(next(os.walk(image_directory + '/' +
-                                     dirs[1]))[2])                
-
 
         # load our original images
-        x_one = np.array(load_images(image_directory + '/' + dirs[0],
-                                     img_size))
-        x_two = np.array(load_images(image_directory + '/' + dirs[1],
-                                     img_size))
+        x_one,x_one_filenames = load_images(image_directory + '/' + dirs[0],
+                                     img_size)
+        x_two,x_two_filenames = load_images(image_directory + '/' + dirs[1],
+                                     img_size)
 
-        save_image("test_image.jpg", x_one[0])
+        x_one = np.array(x_one)
+        x_two = np.array(x_two)
+
+     
         # generate our original labels
         y_one = np.ones((x_one.shape[0], 1))
         y_two = np.zeros((x_two.shape[0], 1))
 
 
+        # create x_test y_test first as to not modify it with data aug techniques
+        # get the ranges for our images
+        num_train = int(ratio_train*x_one.shape[0])
+        num_dev = int(ratio_dev*x_one.shape[0])
+        num_test = int(ratio_test*x_one.shape[0])
+
+        x_one_train = x_one[:num_train,:]
+        y_one_train = y_one[:num_train, :]
+
+        x_one_dev = x_one[num_train:num_train+num_dev, :]
+        y_one_dev = y_one[num_train:num_train+num_dev, :]
+     
+        x_one_test = x_one[num_train+num_dev:, :]
+        y_one_test = y_one[num_train+num_dev:, :]
+
+
+        num_train = int(ratio_train*x_two.shape[0])
+        num_dev = int(ratio_dev*x_two.shape[0])
+        num_test = int(ratio_test*x_two.shape[0])
+
+        x_two_train = x_two[:num_train,:]
+        y_two_train = y_two[:num_train, :]
+
+        
+        x_two_dev = x_two[num_train:num_train+num_dev, :]
+        y_two_dev = y_two[num_train:num_train+num_dev, :]
+        
+        
+        x_two_test = x_two[num_train+num_dev:, :]
+        y_two_test = y_two[num_train+num_dev:, :]
+
+
+        num_x_one = x_one_train.shape[0]
+        num_x_two = x_two_train.shape[0]
         
         if use_oversampling:
                 delta_size_one = num_x_two - num_x_one
                 delta_size_Two = num_x_one - num_x_two
 
                 # duplicate the larger delta into our image array
-                x_one, y_one = oversample(x_one, y_one, delta_size_one)
-                x_two, y_two = oversample(x_two, y_two, delta_size_two)
+                x_one, y_one = oversample(x_one_train, y_one_train, delta_size_one)
+                x_two, y_two = oversample(x_two_train, y_two_train, delta_size_two)
 
         
         if use_data_augmentation:
@@ -391,35 +431,39 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
 
                 # load our augmented images from their directory
                 print("Loading Augmented images...")
-                x_one_aug = np.array(load_images(data_augment_directory +
+                x_one_aug, x_one_aug_filenames = load_images(data_augment_directory +
                                                  '/' + dirs[0],
-                                                 img_size))
-                x_two_aug = np.array(load_images(data_augment_directory +
+                                                 img_size)
+                x_two_aug, x_two_aug_filenames = load_images(data_augment_directory +
                                                  '/' + dirs[1],
-                                                 img_size))
+                                                 img_size)
+
+                x_one_aug = np.array(x_one_aug)
+                x_two_aug = np.array(x_two_aug)
+                
+                
                 # if we loaded an image print how many we loaded
                 # append them to their correct collection
                 if x_one_aug.shape[0] != 0:
                         print("Loaded ", str(x_one_aug.shape[0]), " augmented images")
-                        x_one = sort_aug_data(x_one, data_augment_directory +
+                        x_one_train = sort_aug_data(x_one_train, data_augment_directory +
                                               '/' + dirs[0])
                         
-#                if x_two_aug.shape[0] != 0:
-#                        print("Loaded ", str(x_two_aug.shape[0]), " augmented images")
-#                        x_two = np.concatenate((x_two, x_two_aug))
 
-
+                if x_two_aug.shape[0] != 0:
+                        x_two_train = sort_aug_data(x_two_train, data_augment_directory +
+                                              '/' + dirs[1])
                 # regenerate our original labels with our aug labels included
-                y_one = np.ones((x_one.shape[0], 1))
-                y_two = np.zeros((x_two.shape[0], 1))
+                y_one_train = np.ones((x_one_train.shape[0], 1))
+                y_two_train = np.zeros((x_two_train.shape[0], 1))
 
                         
                 # Generate new images, append them to their collection
                 # and write them to the correct folder
-                x_one, y_one = data_augment(x_one, y_one,
+                x_one_train, y_one_train = data_augment(x_one_train, y_one_train,
                                             delta_size_one,
                                             data_augment_directory + '/' + dirs[0])
-                x_two, y_two = data_augment(x_two, y_two,
+                x_two_train, y_two_train = data_augment(x_two_train, y_two_train,
                                             delta_size_two,
                                             data_augment_directory + '/' + dirs[1])
                         
@@ -427,51 +471,19 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
 
         print("x_one shape: ", str(x_one.shape))
         print("x_two shape: ", str(x_two.shape))
+
         
-        # X_images is the concatenation of all images
-        # Y_images is the concatenation of all labels
-        Y_images = np.concatenate((y_one, y_two))
-        X_images = np.concatenate((x_one, x_two))
-        
-        # setup the training set
-        x_train_all = load_subset(x_one, x_two, ratio_train, 0, 0, 0, 0)
-        y_train_all = load_subset(y_one, y_two, ratio_train, 0, 0, 0, 0)
-        
-        # setup the dev set
-        x_dev_all = load_subset(x_one, x_two, ratio_dev,
-                                x_train_all['num_one'], x_train_all['num_two'],
-                                x_train_all['num_one'], x_train_all['num_two'])
-
-        y_dev_all = load_subset(y_one, y_two, ratio_dev,
-                                y_train_all['num_one'], y_train_all['num_two'],
-                                y_train_all['num_one'], y_train_all['num_two'])
-
-        # setup the test set
-        x_test_all = load_subset(x_one, x_two, ratio_test,
-                                 x_train_all['num_one']+x_dev_all['num_one'],
-                                 x_train_all['num_two'] + x_dev_all['num_two'],
-                                 x_one.shape[0], x_two.shape[0])
-
-        y_test_all = load_subset(y_one, y_two, ratio_test,
-                                 y_train_all['num_one']+y_dev_all['num_one'],
-                                 y_train_all['num_two'] + y_dev_all['num_two'],
-                                 y_one.shape[0], y_two.shape[0])
-
-        # retrieve results
-        x_train = x_train_all['results']
-        x_dev = x_dev_all['results']
-        y_train = y_train_all['results']
-        y_dev = y_dev_all['results']
-        x_test = x_test_all['results']
-        y_test = y_test_all['results']
-
+        x_train = np.concatenate((x_one_train, x_two_train))
+        y_train = np.concatenate((y_one_train, y_two_train))
+        x_dev = np.concatenate((x_one_dev, x_two_dev))
+        y_dev = np.concatenate((y_one_dev, y_two_dev))
+        x_test = np.concatenate((x_one_test, x_two_test))
+        y_test = np.concatenate((y_one_test, y_two_test))
 
         if verbose:
                 print('train/dev/test ratios : ' +
                       str(ratio_train) + ', ' + str(ratio_dev) +
                       ', ' + str(ratio_test))
-                print('x_images shape: ' + str(X_images.shape))
-                print('y_images shape: ' + str(Y_images.shape))
                 print('x_train shape: ' + str(x_train.shape))
                 print('y_train shape: ' + str(y_train.shape))
                 print('x_dev shape: ' + str(x_dev.shape))
@@ -480,16 +492,6 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
                 print('y_test shape: ' + str(y_test.shape))
 
         # check to ensure our sizes match
-        assert(X_images.shape[0] == (x_train.shape[0] +
-                                     x_dev.shape[0] +
-                                     x_test.shape[0]))
-
-        assert(Y_images.shape[0] == (y_train.shape[0] +
-                                     y_dev.shape[0] +
-                                     y_test.shape[0]))
-
-
-
                 
         return x_train, y_train, x_dev, y_dev, x_test, y_test
 

@@ -6,13 +6,13 @@
 # 'VGG19'
 # 'Xception'
 # 'SSUGeosciences'
-model_name = ['InceptionV3', 'InceptionResNetV2', 'Xception']
+model_name = [ 'InceptionV3', 'InceptionResNetV2', 'VGG16', 'VGG19']
 
 batch_size = 32
 
-num_epochs = 18
+num_epochs = 10
 
-learning_rate = 0.0008
+learning_rate = 0.0001
 
 # when k_folds > 1 the ratio_learn and ratio_test are ignored.
 # all folds have size (samples / k_folds)
@@ -25,7 +25,7 @@ num_gpus = 1
 # if num_gpus is set to 1, use this to define the gpu to run on.
 # if gpu_to_use does not exist in the list of gpus, the model will be run on
 # the cpu. GPU numbers are [1,2,...n] for all n-gpus in the machine
-gpu_to_use = 1
+gpu_to_use = 2
 
 
 # class weights give weighting based on representation of the dataset.
@@ -54,7 +54,7 @@ use_attention_networks = False
 # for all i in len(fine_tuning)
 # that is all of these layers starting from the output of the CNN will be
 # trained
-fine_tuning = {1,2,3,4,5,6,7}
+fine_tuning = {1,2,3,4,5,6,7,8,8,10,11,12,13,14,15}
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.

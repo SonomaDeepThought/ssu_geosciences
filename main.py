@@ -27,8 +27,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
 
 
-
-
 def main(loaded_params):
 
     model_name = loaded_params['model_name']
