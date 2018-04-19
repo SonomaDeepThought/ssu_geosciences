@@ -1,5 +1,5 @@
 # surpress tensorflow warnings
-from sklearn import svm
+from sklearn import svm 
 import os 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # log minimum errors to the user
 
@@ -24,12 +24,64 @@ import keras
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
 
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, GridSearchCV, StratifiedShuffleSplit
 from sklearn.utils import class_weight
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import matplotlib
 
 SVM_Feature_Extractor = True
+SVM_Find_optimum = False
 
+######### SVM ########
+def svc_param_selection(X, y):
+    Cs = [0.001, 0.01, 0.1, 1, 10]
+    gammas = [0.001, 0.01, 0.1, 1]
+    param_grid = {'C': Cs, 'gamma' : gammas}
+    cv = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
+    grid_search = GridSearchCV(svm.SVC(), param_grid, cv=cv)
+    grid_search.fit(X, y)
+    grid_search.best_params_
+    return grid_search.best_params_
+
+
+def make_meshgrid(x, y, h=.02):
+    """Create a mesh of points to plot in
+
+    Parameters
+    ----------
+    x: data to base x-axis meshgrid on
+    y: data to base y-axis meshgrid on
+    h: stepsize for meshgrid, optional
+
+    Returns
+    -------
+    xx, yy : ndarray
+    """
+    x_min, x_max = x.min() - 1, x.max() + 1
+    y_min, y_max = y.min() - 1, y.max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    return xx, yy
+
+
+def plot_contours(ax, clf, xx, yy, **params):
+    """Plot the decision boundaries for a classifier.
+
+    Parameters
+    ----------
+    ax: matplotlib axes object
+    clf: a classifier
+    xx: meshgrid ndarray
+    yy: meshgrid ndarray
+    params: dictionary of params to pass to contourf, optional
+    """
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    out = ax.contourf(xx, yy, Z, **params)
+    return out
+
+######## END SVM ########
 
 def main(loaded_params):
 
@@ -78,6 +130,10 @@ def main(loaded_params):
     Y_dev = Y_dev_orig
     Y_test = Y_test_orig
 
+    # svm y
+    svm_y_train = np.reshape(Y_train, (np.shape(Y_train)[0]))
+    svm_y_test = np.reshape(Y_dev, (np.shape(Y_dev)[0]))
+    #exit()
         
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
 
@@ -185,10 +241,20 @@ def main(loaded_params):
             all_outs.append(intermediate_output)
         print("Output Shape: ", end="")
         print(np.shape(all_outs))
+
+        if SVM_find_optimum:
+            best_params = svc_param_selection(all_outs, svm_y_train)
+            print("best_params are: ", best_params)
+        else:
+            best_params = {'C':10, 'gamma':0.001}
+        C = best_params['C']
+        gamma = best_params['gamma']
+
+
         print("creating SVM...")
-        clf = svm.SVC()
+        clf = svm.SVC(C=C, gamma=gamma)
         print("Fitting SVM...")
-        clf.fit(all_outs, Y_train)
+        clf.fit(all_outs, svm_y_train)
     
         svm_preds = []
         print("Extracting features from dev set and making predictions using SVM...")
@@ -199,7 +265,23 @@ def main(loaded_params):
             svm_preds.append(clf.predict([intermediate_output]))
         total_accuracy = sum(svm_preds==Y_dev)/len(Y_dev)
         print("Total accuracy of the SVM as a feature extractor:", total_accuracy)
-
+        
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+        X0, X1 = X_train[:, 0], X_train[:, 1]
+        xx, yy = make_meshgrid(X0, X1)
+        plot_contours(ax, clf, xx, yy,
+                  cmap=plt.cm.coolwarm, alpha=0.8)
+        ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
+        ax.set_xlim(xx.min(), xx.max())
+        ax.set_ylim(yy.min(), yy.max())
+        ax.set_xlabel('Sepal length')
+        ax.set_ylabel('Sepal width')
+        ax.set_xticks(())
+        ax.set_yticks(())
+        ax.set_title(title)
+        fig.savefig('SVM_Output.png')
+        plt.close(fig)
+        
 
 
 
