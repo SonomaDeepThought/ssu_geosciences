@@ -28,11 +28,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
 from tqdm import tqdm
 
-<<<<<<< HEAD
-=======
-SVM_Feature_Extractor = True
 
->>>>>>> edbd7d3cd5e8f33734245d2d2d5b131e6f9a4b87
+SVM_Feature_Extractor = True
 
 def main(loaded_params):
 
