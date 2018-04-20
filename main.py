@@ -1,4 +1,5 @@
 # surpress tensorflow warnings
+from sklearn import svm
 import os 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # log minimum errors to the user
 
@@ -25,7 +26,13 @@ from keras.preprocessing.image import ImageDataGenerator
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
+from tqdm import tqdm
 
+<<<<<<< HEAD
+=======
+SVM_Feature_Extractor = True
+
+>>>>>>> edbd7d3cd5e8f33734245d2d2d5b131e6f9a4b87
 
 def main(loaded_params):
 
@@ -170,7 +177,31 @@ def main(loaded_params):
         print("mean: ", str(scores.mean()))
         save_kfold_accuracy(output_directory, model_name, scores, cm_strings)
         
-
+    if SVM_Feature_Extractor:
+        print("Now running feature extractor...")
+        all_outs=[]
+        print("Extracting features from test set...")
+        for i in tqdm(range(len(X_train))):
+            pic = np.multiply(np.ones((1,227,227,3)),X_train[i])
+            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
+            intermediate_output = np.squeeze(intermediate_layer_model.predict(pic), axis=0)
+            all_outs.append(intermediate_output)
+        print("Output Shape: ", end="")
+        print(np.shape(all_outs))
+        print("creating SVM...")
+        clf = svm.SVC()
+        print("Fitting SVM...")
+        clf.fit(all_outs, Y_train)
+    
+        svm_preds = []
+        print("Extracting features from dev set and making predictions using SVM...")
+        for i in tqdm(range(len(X_dev))):
+            pic = np.multiply(np.ones((1,227,227,3)),X_dev[i])
+            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
+            intermediate_output = np.squeeze(intermediate_layer_model.predict(pic), axis=0)
+            svm_preds.append(clf.predict([intermediate_output]))
+        total_accuracy = sum(svm_preds==Y_dev)/len(Y_dev)
+        print("Total accuracy of the SVM as a feature extractor:", total_accuracy)
 
 
 

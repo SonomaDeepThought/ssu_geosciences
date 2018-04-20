@@ -6,11 +6,19 @@
 # 'VGG19'
 # 'Xception'
 # 'SSUGeosciences'
+<<<<<<< HEAD
 model_name = [ 'InceptionV3', 'InceptionResNetV2', 'VGG16', 'VGG19']
 
 batch_size = 32
 
 num_epochs = 10
+=======
+model_name = ['InceptionV3']
+
+batch_size = 32
+
+num_epochs = 2
+>>>>>>> edbd7d3cd5e8f33734245d2d2d5b131e6f9a4b87
 
 learning_rate = 0.0001
 
@@ -43,7 +51,7 @@ use_oversampling = False
 
 # to modify the data augmentation settings edit tools/kt_utils.py
 # In data_augment() modify the ImageDataGenerator function params
-use_data_augmentation = True
+use_data_augmentation = False
 
 
 # -NOT YET IMPLEMENTED-
@@ -54,7 +62,11 @@ use_attention_networks = False
 # for all i in len(fine_tuning)
 # that is all of these layers starting from the output of the CNN will be
 # trained
+<<<<<<< HEAD
 fine_tuning = {1,2,3,4,5,6,7,8,8,10,11,12,13,14,15}
+=======
+fine_tuning = {}
+>>>>>>> edbd7d3cd5e8f33734245d2d2d5b131e6f9a4b87
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.
