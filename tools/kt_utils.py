@@ -108,7 +108,10 @@ def load_images(folder, img_size):
         '''
         images = []
         filenames = []
+        ignore_list = ['.AppleDouble', '__pycache__', '.DS_Store']
         for filename in os.listdir(folder):
+                if filename in ignore_list:
+                        continue
                 img = Image.open(os.path.join(folder, filename))
                 if img is not None:
                         rbgimg = Image.new("RGB", img.size)
@@ -328,8 +331,11 @@ def load_dataset(image_directory, img_size, ratio_train = 0.6, ratio_dev = -1,
         assert(ratio_train + ratio_dev + ratio_test == 1)
 
         dirs = os.listdir(image_directory)
+
+        remove_list = ['.AppleDouble', '__pycache__', '.DS_Store']
+        # remove .appledouble and __pycache__
         for d in dirs:
-                if d == './AppleDouble':
+                if d in remove_list:
                         dirs.remove(d)
                 
                 

@@ -26,48 +26,49 @@ from keras.preprocessing.image import ImageDataGenerator
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils import class_weight
-from tqdm import tqdm
+#from tqdm import tqdm
 
 
-SVM_Feature_Extractor = True
+SVM_Feature_Extractor = False
 
 def main(loaded_params):
-
+    '''
+    input : a dictionary of parameters loaded from the config.py
+    '''
+    
+    
     model_name = loaded_params['model_name']
-    num_epochs = loaded_params['num_epochs']
-    batch_size = loaded_params['batch_size']
     ratio_train = loaded_params['ratio_train']
     ratio_test = loaded_params['ratio_test']
-    learning_rate = loaded_params['learning_rate']
     output_directory = loaded_params['output_directory']
-    optimizer = loaded_params['optimizer']
-    image_directory = loaded_params['image_directory']
-    data_augmentation_directory = loaded_params['data_augmentation_directory']
-    num_gpus = loaded_params['num_gpus']
     k_folds = loaded_params['k_folds']
-    use_class_weights = loaded_params['use_class_weights']
-    use_oversampling = loaded_params['use_oversampling']
-    use_data_augmentation = loaded_params['use_data_augmentation']
-    use_attention_networks = loaded_params['use_attention_networks']
-    fine_tuning = loaded_params['fine_tuning']
 
+    use_attention_networks = loaded_params['use_attention_networks'] # not currently used
+
+    
     base_models = []
+
+    # if our model is an ensemble, default to 224,224,3 
     if len(model_name) > 1:
         input_shape = (224,224,3)
     else:
         input_shape = None
-    
+
+
+    # load all of the models into base_models
     for model in model_name:
-        base_model, img_size = load_base_model(model, fine_tuning=fine_tuning,
+        base_model, img_size = load_base_model(model,
+                                               fine_tuning=loaded_params['fine_tuning'],
                                                input_shape=input_shape)
         base_models.append(base_model)
 
+
+        
     # load our images
-    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(image_directory, img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=use_data_augmentation, data_augment_directory=data_augmentation_directory, use_oversampling=use_oversampling)
+    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(loaded_params['image_directory'], img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=loaded_params['use_data_augmentation'], data_augment_directory=loaded_params['data_augmentation_directory'], use_oversampling=loaded_params['use_oversampling'])
 
 
 
-    
     # Normalize image vectors
     X_train = X_train_orig/255.
     X_dev = X_dev_orig/255.
@@ -81,8 +82,11 @@ def main(loaded_params):
         
     print_shapes(X_train, Y_train, X_dev, Y_dev, X_test, Y_test)
 
-    
+
     if k_folds == None or k_folds <= 1:
+        # handle no k-fold
+
+        
         print("building models")
         if len(model_name) > 1:
             output_directory += '/ensemble'
@@ -91,9 +95,9 @@ def main(loaded_params):
         for model in base_models:
             completed_model = create_final_layers(model,
                                                   img_size,
-                                                  learning_rate=learning_rate,
-                                                  optimizer=optimizer,
-                                                  num_gpus=num_gpus)
+                                                  learning_rate=loaded_params['learning_rate'],
+                                                  optimizer=loaded_params['optimizer'],
+                                                  num_gpus=loaded_params['num_gpus'])
             
             print('finished building model\nTraining Model')
             history, preds = train_and_evaluate_model(completed_model,
@@ -101,11 +105,15 @@ def main(loaded_params):
                                                Y_train,
                                                X_dev,
                                                Y_dev,
-                                               batch_size=batch_size,
-                                               num_epochs=num_epochs,
-                                               use_class_weights=use_class_weights)
+                                               batch_size=loaded_params['batch_size'],
+                                               num_epochs=loaded_params['num_epochs'],
+                                               use_class_weights=loaded_params['use_class_weights'])
+            print('preds.shape: ' + str(preds.shape))
+            print('Y_dev.shape: ' + str(Y_dev.shape))
+
             cm = confusion_matrix(Y_dev,
                                   preds, labels=[0,1])
+
 
             print_cm(cm, labels=['Non-Sigma', 'Sigma'])
             model_preds.append(preds)
@@ -132,6 +140,7 @@ def main(loaded_params):
         
         
     else:
+        # using k-fold cross validation
 
         # for k-fold we must combine our data into a single entity.
         data = np.concatenate((X_train, X_dev), axis=0)
@@ -146,22 +155,23 @@ def main(loaded_params):
         for (train, test) in skf.split(data,labels):
             print ("Running Fold", idx+1, "/", k_folds)
             base_model = None
-            base_model, img_size = load_base_model(model_name, fine_tuning=fine_tuning)
+            base_model, img_size = load_base_model(model_name,
+                                                   fine_tuning=loaded_params['fine_tuning'])
         
             completed_model = None
 
             completed_model = create_final_layers(base_model,
                                                   img_size,
-                                                  learning_rate=learning_rate,
-                                                  optimizer=optimizer,
-                                                  num_gpus=num_gpus)
+                                                  learning_rate=loaded_params['learning_rate'],
+                                                  optimizer=loaded_params['optimizer'],
+                                                  num_gpus=loaded_params['num_gpus'])
             start = time.time()
             preds, scores[idx] = k_fold(completed_model,
                                        data[train], labels[train],
                                         data[test], labels[test],
-                                        batch_size=batch_size,
-                                        num_epochs=num_epochs,
-                                        use_class_weights=use_class_weights)
+                                        batch_size=loaded_params['batch_size'],
+                                        num_epochs=loaded_params['num_epochs'],
+                                        use_class_weights=loaded_params['use_class_weights'])
 
             print("time to k_fold: ", str(time.time()-start))
             idx += 1

@@ -7,11 +7,11 @@
 # 'Xception'
 # 'SSUGeosciences'
 
-model_name = [ 'InceptionV3', 'InceptionResNetV2', 'VGG16', 'VGG19']
+model_name = ['InceptionV3']
 
 batch_size = 32
 
-num_epochs = 10
+num_epochs = 2
 
 learning_rate = 0.0001
 
@@ -44,7 +44,7 @@ use_oversampling = False
 
 # to modify the data augmentation settings edit tools/kt_utils.py
 # In data_augment() modify the ImageDataGenerator function params
-use_data_augmentation = False
+use_data_augmentation = True
 
 
 # -NOT YET IMPLEMENTED-
@@ -57,6 +57,7 @@ use_attention_networks = False
 # trained
 
 fine_tuning = {1,2,3,4,5,6,7,8,8,10,11,12,13,14,15}
+
 
 # % of images to use in the training set. The number of images used for the
 # dev set are derived from train set and test set.

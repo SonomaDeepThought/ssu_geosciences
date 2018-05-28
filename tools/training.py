@@ -48,7 +48,7 @@ def train_and_evaluate_model(model, X_train, Y_train, X_dev, Y_dev,
     print("eval: ", str(model.evaluate(X_dev, Y_dev)))
     preds = model.predict(X_dev)
 
-
+    
 
     save_images(preds, Y_dev, X_dev, model.layers[1].name)
 
