@@ -11,7 +11,7 @@ model_name = ['InceptionV3', 'InceptionResNetV2', 'ResNet50']
 
 batch_size = 32
 
-num_epochs = 10
+num_epochs = 16
 
 learning_rate = 0.0001
 
