@@ -19,7 +19,7 @@ from tools.training import *
 from model import *
 
 import numpy as np
-np.random.seed(1337)
+np.random.seed(1337) # limit the randomness between sessions.
 import keras
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator
@@ -65,9 +65,10 @@ def main(loaded_params):
 
         
     # load our images
-    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig  = load_dataset(loaded_params['image_directory'], img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=loaded_params['use_data_augmentation'], data_augment_directory=loaded_params['data_augmentation_directory'], use_oversampling=loaded_params['use_oversampling'])
+    X_train_orig, Y_train_orig, X_dev_orig, Y_dev_orig, X_test_orig, Y_test_orig, labels  = load_dataset(loaded_params['image_directory'], img_size, ratio_train=ratio_train, ratio_test = ratio_test, use_data_augmentation=loaded_params['use_data_augmentation'], data_augment_directory=loaded_params['data_augmentation_directory'], use_oversampling=loaded_params['use_oversampling'])
 
 
+    print(labels)
 
     # Normalize image vectors
     X_train = X_train_orig/255.
@@ -95,6 +96,7 @@ def main(loaded_params):
         for model in base_models:
             completed_model = create_final_layers(model,
                                                   img_size,
+                                                  labels=labels,
                                                   learning_rate=loaded_params['learning_rate'],
                                                   optimizer=loaded_params['optimizer'],
                                                   num_gpus=loaded_params['num_gpus'])
@@ -125,11 +127,15 @@ def main(loaded_params):
         avg_preds = np.average(model_preds, axis=0)
         # store our images
         save_images(avg_preds, Y_dev, X_dev, "ensemble",  ensembles=True)
-        avg_preds = avg_preds > 0.5 # apply binary classifier thresholding        
-        avg_correct = Y_dev == avg_preds # get an array of correct answers
+        #avg_preds = avg_preds > 0.5 # apply binary classifier thresholding
+        avg_preds = (avg_preds == avg_preds.max(axis=1)[:,None]).astype(int)
+        print(avg_preds)
+
+        # get number of correct
+        avg_correct = np.sum(np.all(avg_preds == Y_dev, axis=1))
         print("----------------------------------------")
         print("ensemble accuracy: ",
-              str(np.sum(avg_correct) / len(avg_correct)))
+              str(np.sum(avg_correct) / len(Y_dev)))
 
         cm = confusion_matrix(Y_dev,
                               avg_preds, labels=[0,1])

@@ -7,11 +7,11 @@
 # 'Xception'
 # 'SSUGeosciences'
 
-model_name = ['InceptionV3']
+model_name = ['InceptionV3', 'InceptionResNetV2', 'ResNet50']
 
 batch_size = 32
 
-num_epochs = 2
+num_epochs = 10
 
 learning_rate = 0.0001
 

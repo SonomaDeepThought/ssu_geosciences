@@ -11,7 +11,7 @@ from tensorflow.python.client import device_lib
 
 from tools.kt_utils import get_available_gpus
 
-def create_final_layers(base_model, img_size, optimizer=None,
+def create_final_layers(base_model, img_size,labels=None, optimizer=None,
                         learning_rate=0.001, dropout_rate=0.5,
                         num_gpus=1):
 
@@ -39,7 +39,15 @@ def create_final_layers(base_model, img_size, optimizer=None,
     x = Dropout(dropout_rate, name='fc_dropout1')(x)
     x = Dense(2048, activation='relu',
               name = 'fc_dense2')(x)
-    x = Dense(1, activation='sigmoid', name='predictions')(x)
+    
+    is_binary = False
+    '''
+    if labels == None or len(labels) == 2:
+        x = Dense(1, activation='sigmoid', name='predictions')(x)
+        is_binary = True
+    else:
+    '''
+    x = Dense(len(labels), activation='softmax', name='predictions')(x)
 
     model = Model(inputs=input, outputs=x)
 
@@ -55,8 +63,14 @@ def create_final_layers(base_model, img_size, optimizer=None,
 
         print("time to spread model across multiple gpus: ", str(time.time() -
                                                                  start))
+
+    if is_binary:
+        loss = 'binary_crossentropy'
+    else:
+        loss = 'categorical_crossentropy'
         
-    model.compile(optimizer=optimizer, loss='binary_crossentropy',
+        
+    model.compile(optimizer=optimizer, loss=loss,
                   metrics=['accuracy'])
 
     return model

@@ -1,6 +1,8 @@
 *~
 makefile
 **/__pycache__/
+.AppleDouble
+.DS_Store
 /results/
 /data_augmentation/
 test_tools.py
