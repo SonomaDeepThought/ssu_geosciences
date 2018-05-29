@@ -30,10 +30,12 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib
 
-SVM_Feature_Extractor = True
-SVM_Find_optimum = False
+from svm_tools import * 
 
-######### SVM ########
+SVM_Feature_Extractor = True
+SVM_find_optimum = False
+
+######### SVM ##########
 def svc_param_selection(X, y):
     Cs = [0.001, 0.01, 0.1, 1, 10]
     gammas = [0.001, 0.01, 0.1, 1]
@@ -231,59 +233,10 @@ def main(loaded_params):
         save_kfold_accuracy(output_directory, model_name, scores, cm_strings)
         
     if SVM_Feature_Extractor:
-        print("Now running feature extractor...")
-        all_outs=[]
-        print("Extracting features from test set...")
-        for i in tqdm(range(len(X_train))):
-            pic = np.multiply(np.ones((1,227,227,3)),X_train[i])
-            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
-            intermediate_output = np.squeeze(intermediate_layer_model.predict(pic), axis=0)
-            all_outs.append(intermediate_output)
-        print("Output Shape: ", end="")
-        print(np.shape(all_outs))
-
-        if SVM_find_optimum:
-            best_params = svc_param_selection(all_outs, svm_y_train)
-            print("best_params are: ", best_params)
-        else:
-            best_params = {'C':10, 'gamma':0.001}
-        C = best_params['C']
-        gamma = best_params['gamma']
-
-
-        print("creating SVM...")
-        clf = svm.SVC(C=C, gamma=gamma)
-        print("Fitting SVM...")
-        clf.fit(all_outs, svm_y_train)
-    
-        svm_preds = []
-        print("Extracting features from dev set and making predictions using SVM...")
-        for i in tqdm(range(len(X_dev))):
-            pic = np.multiply(np.ones((1,227,227,3)),X_dev[i])
-            intermediate_layer_model = Model(inputs=completed_model.input, outputs=completed_model.get_layer(index=-3).output)
-            intermediate_output = np.squeeze(intermediate_layer_model.predict(pic), axis=0)
-            svm_preds.append(clf.predict([intermediate_output]))
-        total_accuracy = sum(svm_preds==Y_dev)/len(Y_dev)
-        print("Total accuracy of the SVM as a feature extractor:", total_accuracy)
-        
-        fig, ax = plt.subplots(nrows=1, ncols=1)
-        X0, X1 = X_train[:, 0], X_train[:, 1]
-        xx, yy = make_meshgrid(X0, X1)
-        plot_contours(ax, clf, xx, yy,
-                  cmap=plt.cm.coolwarm, alpha=0.8)
-        ax.scatter(X0, X1, c=y, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
-        ax.set_xlim(xx.min(), xx.max())
-        ax.set_ylim(yy.min(), yy.max())
-        ax.set_xlabel('Sepal length')
-        ax.set_ylabel('Sepal width')
-        ax.set_xticks(())
-        ax.set_yticks(())
-        ax.set_title(title)
-        fig.savefig('SVM_Output.png')
-        plt.close(fig)
-        
-
-
+        svm_in = CNN_features_extracted(X_train, completed_model)
+        best_params = SVM_params(svm_in, svm_y_train)
+        clf = create_SVM(best_params, svm_in, svm_y_train)
+        test_svm(clf, completed_model, X_dev, Y_dev)
 
 
     
