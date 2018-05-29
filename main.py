@@ -129,7 +129,6 @@ def main(loaded_params):
         save_images(avg_preds, Y_dev, X_dev, "ensemble",  ensembles=True)
         #avg_preds = avg_preds > 0.5 # apply binary classifier thresholding
         avg_preds = (avg_preds == avg_preds.max(axis=1)[:,None]).astype(int)
-        print(avg_preds)
 
         # get number of correct
         avg_correct = np.sum(np.all(avg_preds == Y_dev, axis=1))
